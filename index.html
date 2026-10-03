@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EnglishFull – Luyện Tập Tiếng Anh</title>
+<style>
+  :root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--n6:#164192;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:72px}
+  html,body{margin:0;padding:0;overflow-x:hidden}
+  body{font-family:'Times New Roman',Times,serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+  /* ===== Header ===== */
+  .site-header{position:sticky;top:0;z-index:60;background:rgba(6,23,51,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1)}
+  .hd-in{max-width:1120px;margin:0 auto;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .logo{display:flex;align-items:center;gap:10px;color:#fff}
+  .logo svg{width:44px;height:44px;flex:none}
+  .logo b{display:block;font-size:1.2rem;line-height:1.1;letter-spacing:.3px}
+  .logo small{display:block;font-size:.74rem;opacity:.75;line-height:1.2;font-style:italic}
+  .nav{display:flex;gap:4px}
+  .nav a{color:#dbe7ff;padding:8px 15px;border-radius:99px;font-weight:600;font-size:.93rem;transition:.15s}
+  .nav a:hover{background:rgba(255,255,255,.12)}
+  .nav a.on{background:#fff;color:var(--n8)}
+   #lh{color:var(--sky)}
+  @media (max-width:520px){.logo small{display:none}.nav a{padding:7px 10px;font-size:.85rem}}
+
+  /* ===== Hero ===== */
+  .hero{position:relative;overflow:hidden;color:#fff;text-align:center;padding:68px 16px 130px;
+    background:radial-gradient(900px 420px at 85% -10%,rgba(56,189,248,.28),transparent 60%),
+               radial-gradient(700px 380px at -5% 110%,rgba(37,99,235,.45),transparent 60%),
+               linear-gradient(135deg,#061733 0%,#0c2a63 55%,#1a4a9c 100%)}
+  .hero::before{content:"";position:absolute;inset:0;opacity:.07;
+    background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+  .hero-in{max-width:760px;margin:0 auto;position:relative;animation:rise .7s both}
+  .badge{display:inline-block;padding:5px 16px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);border-radius:99px;font-size:.88rem;margin-bottom:18px}
+  .hero h1{margin:0 0 14px;font-size:3rem;line-height:1.14;font-weight:700;letter-spacing:-.3px}
+  .hero p{margin:0 auto 28px;font-size:1.2rem;opacity:.92;max-width:520px;font-style:italic}
+  .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .cta{display:inline-block;background:#fff;color:var(--n8);font-weight:700;padding:14px 28px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.28);transition:.15s}
+  .cta:hover{transform:translateY(-2px)}
+  .cta.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55);box-shadow:none}
+  .cta.ghost:hover{background:rgba(255,255,255,.12)}
+  .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:70px;display:block}
+  @media (max-width:520px){.hero{padding:46px 16px 110px}.hero h1{font-size:2.05rem}.hero p{font-size:1.05rem}}
+
+  /* ===== Nội dung ===== */
+  .wrap{max-width:1120px;margin:-48px auto 0;padding:0 14px 40px;position:relative}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 24px;box-shadow:0 10px 30px rgba(6,23,51,.10);margin-bottom:20px}
+  .panel h2{margin:0 0 4px;color:var(--n8);font-size:1.45rem}
+  .panel .lead{margin:0 0 18px;color:var(--muted)}
+
+              /* ===== Lời nhắn người hướng dẫn ===== */
+      .mentor{display:grid;grid-template-columns:260px minmax(0,1fr);gap:26px;align-items:start}
+
+      /* Cột trái */
+      .mentor-side{display:flex;flex-direction:column;align-items:center;text-align:center;
+        background:#f3f7ff;border-radius:16px;padding:22px 16px}
+      .avatar{width:120px;height:120px;border-radius:50%;padding:4px;
+        background:linear-gradient(135deg,var(--blue),var(--sky));
+        box-shadow:0 8px 20px rgba(15,49,112,.25);overflow:hidden;display:grid;place-items:center}
+      .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;border:3px solid #fff;display:block}
+      .mentor-name{margin-top:12px;font-size:1rem;font-weight:700;color:var(--n8)}
+      .achv{list-style:none;margin:10px 0 0;padding:0;width:100%;text-align:left}
+      .achv li{position:relative;padding:6px 0 6px 22px;font-size:.8rem;color:var(--ink);border-top:1px solid var(--line)}
+      .achv li:first-child{border-top:0}
+      .achv li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;
+        background:linear-gradient(135deg,var(--blue),var(--sky))}
+
+      /* Cột phải */
+      .mentor blockquote{margin:0 0 30px;padding:14px 18px;border-left:4px solid var(--sky);background:#f3f7ff;
+        border-radius:0 12px 12px 0;color:var(--ink);font-style:italic;font-size:1.5rem}
+      .tips{margin:0;padding-left:20px;color:var(--muted)}
+      .tips li{margin:6px 0}
+      .tips b{color:var(--n7)}
+
+      /* Điện thoại: xếp thành 1 cột */
+      @media (max-width:700px){
+        .mentor{grid-template-columns:1fr}
+      }
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+  .card{display:flex;flex-direction:column;gap:8px;border:1.5px solid var(--line);border-radius:16px;padding:18px;background:#fff;transition:.18s;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--blue),var(--sky))}
+  .card .ic{width:44px;height:44px;border-radius:12px;background:#e4ecfb;color:var(--n7);display:grid;place-items:center;font-weight:700;font-size:1.15rem}
+  .card h3{margin:2px 0 0;font-size:1.1rem;color:var(--n7)}
+  .card p{margin:0;color:var(--muted);font-size:.93rem;flex:1}
+  .go{margin-top:6px;font-weight:700;color:var(--blue);font-size:.92rem}
+  a.card:hover{border-color:#7f9fdc;background:#f5f8ff;transform:translateY(-3px);box-shadow:0 12px 24px rgba(15,49,112,.14)}
+  .tag{align-self:flex-start;padding:2px 11px;border-radius:99px;font-size:.76rem;font-weight:700;background:#f0fdf4;color:#166534}
+  .card.soon{background:#f8faff}
+  .card.soon::before{background:#c8d6f0}
+  .card.soon .tag{background:#e4ecfb;color:var(--n7)}
+  .card.soon .ic{color:#8aa0cc}
+
+  .feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;margin-top:6px}
+  .feat{display:flex;gap:14px;align-items:flex-start}
+  .feat .fi{flex:none;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0a2350,#1d4ed8);display:grid;place-items:center}
+  .feat .fi svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .feat b{display:block;color:var(--n8)}
+  .feat span{color:var(--muted);font-size:.93rem}
+
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;counter-reset:s}
+  .steps div{counter-increment:s;background:#f3f7ff;border-radius:14px;padding:16px 16px 14px 62px;position:relative}
+  .steps div::before{content:counter(s);position:absolute;left:16px;top:16px;width:34px;height:34px;border-radius:50%;background:var(--n7);color:#fff;font-weight:700;display:grid;place-items:center}
+  .steps b{display:block;color:var(--n7)}
+  .steps span{color:var(--muted);font-size:.93rem}
+
+  .contact{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:linear-gradient(135deg,#0a2350,#164192);border-color:transparent;color:#fff}
+  .contact h2{color:#fff}
+  .contact strong{color:#bfe3ff}
+  .btn{display:inline-block;background:#fff;color:var(--n8);font-weight:700;padding:12px 22px;border-radius:12px;transition:.15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn img{display:block;width:140px;max-width:100%;height:auto;border-radius:8px}
+  .btn.qr{padding:8px}
+
+  footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:26px 14px;font-size:.9rem}
+  footer .logo{justify-content:center;margin-bottom:6px}
+
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="hd-in">
+    <!-- Logo: bấm vào sẽ về trang chủ (link được gắn bằng JS, không hiện URL) -->
+    <a class="logo" id="logoLink" href="index.html" aria-label="EnglishFull – về trang chủ">
+      <svg viewBox="0 0 100 100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#ffffff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 18 64 V 28 C 25 24, 38 27, 45 31 V 67 C 38 63, 25 60, 18 64 Z"/>
+          <path d="M 45 31 C 52 27, 65 24, 72 28 V 50"/>
+          <path d="M 45 67 C 52 63, 65 60, 72 64"/>
+          <path d="M 30 40 H 45" stroke-width="6"/>
+          <path d="M 30 51 H 40" stroke-width="6"/>
+          <path d="M 28 51 L 45 51 L 62 33 L 78 17" stroke-width="7"/>
+          <path d="M 64 17 H 78 V 31" stroke-width="7"/>
+        </g>
+      </svg>
+      <span><b>EnglishFull</b><small>Full English is here</small></span>
+    </a>
+      <nav class="nav" aria-label="Điều hướng">
+        <a href="index.html" class="on" id="navHome">Trang chủ</a>
+        <a href="exercises.html" id="navEx">Bài tập</a>
+        <a id="lh" href="#lien-he" target="_self">Liên hệ</a>
+      </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <span class="badge">Tư duy &amp; Tài liệu tiếng Anh</span>
+    <h1>Tiếng Anh tổng quát,<br>chi tiết từng chủ đề</h1>
+    <p>Học bản chất, học kỉ luật.</p>
+    <div class="hero-btns">
+     <a class="cta" id="ctaStart" href="exercises.html">Bắt đầu luyện bài tập</a>
+      <a class="cta" href="#lien-he" target="_self">Tư duy học Tiếng Anh</a>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40C240 80 480 0 720 30s480 50 720 5V70H0Z" fill="#eef2f9"/>
+  </svg>
+</section>
+
+<main class="wrap">
+    <section class="panel">
+    <h2>Lời nhắn từ tác giả</h2>
+    <p class="lead">Làm thế nào để học Tiếng Anh hiệu quả</p>
+    <div class="mentor">
+
+      <!-- Cột trái: avatar + tên + thành tích -->
+      <div class="mentor-side">
+        <div class="avatar" aria-label="Ảnh Nguyễn Hồng Hải">
+          <img src="https://drive.google.com/thumbnail?id=1FTYzlF7-HSpHOHFzFUpUX7CQmlUe2ckZ&sz=w400" alt="Nguyễn Hồng Hải">
+        </div>
+        <div class="mentor-name">Nguyễn Hồng Hải</div>
+        <ul class="achv">
+          <li>Sinh viên ngành Logistics và Quản lí Chuỗi cung ứng - NEU</li>
+          <li>Top 10 đầu vào Anh K31 - THPT Chuyên Bắc Giang</li>
+          <li>Giải Ba HSG Tỉnh Bắc Giang</li>
+        </ul>
+      </div>
+
+      <!-- Cột phải: quote + lời khuyên -->
+      <div class="mentor-body">
+         <blockquote>
+          "Chỉ cần đi <b>đúng hướng</b>, đích đến sẽ không còn xa. Việc đi <b>chậm hay nhanh</b> không quan trọng bằng việc <b>không bao giờ dừng lại và không bị lạc đường.</b>"
+        </blockquote>
+        <ul class="tips">
+            <li><b>Đi đúng hướng:</b> mượn la bàn từ người đi trước để xác định rõ mục tiêu và bản đồ kiến thức phù hợp.</li>
+            <li><b>Giữ sự kiên trì:</b> học bản chất, học kỉ luật - tích tiểu thành đại.</li>
+            <li><b>Công cụ phù hợp:</b> dùng các chức năng như học từ vựng kết hợp ngữ pháp, ôn lại câu sai và chỉ ra phần còn yếu.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+    <section class="panel">
+      <h2>Vì sao học ở EnglishFull</h2>
+      <p class="lead">Mỗi bài làm xong đều cho bạn biết mình sai ở đâu và vì sao.</p>
+      <div class="feats">
+        <div class="feat"><div class="fi"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+          <div><b>Giải thích từng câu</b><span>Phân tích lỗi sai ngay sau khi nộp bài.</span></div></div>
+        <div class="feat"><div class="fi"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+          <div><b>Thống kê theo chủ đề</b><span>Biết rõ phần nào còn yếu để ôn đúng chỗ.</span></div></div>
+        <div class="feat"><div class="fi"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div>
+          <div><b>Làm lại câu sai</b><span>Luyện lại riêng các câu chưa đúng cho đến khi chắc.</span></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Cách làm bài</h2>
+      <div class="steps">
+        <div><b>Nhập tên</b><span>Điền họ tên trước khi nộp để điểm được lưu lại.</span></div>
+        <div><b>Làm và đánh dấu</b><span>Dùng bảng câu hỏi để nhảy câu, đánh dấu câu chưa chắc.</span></div>
+        <div><b>Xem giải thích</b><span>Sau khi nộp, đọc phân tích và làm lại các câu sai.</span></div>
+      </div>
+    </section>
+
+    <section class="panel contact" id="lien-he">
+      <div>
+        <h2>Cần hỗ trợ?</h2>
+       <span>Câu nào không hiểu, join ngay <a  href="https://zalo.me/g/afb7ondwiri8jkszt1g3" target="_blank" rel="noopener noreferrer"><strong>nhóm Zalo</strong></a></span>
+      </div>
+       <div class="btn qr" aria-label="QR nhóm Zalo">
+          <img src="https://drive.google.com/thumbnail?id=1E1k4ZStxS7OnKTyK2CQWTEd1HyVzBRWd&sz=w400" alt="QR Nhóm Zalo">
+        </div>
+    </section>
+</main>
+
+<footer>
+  <div>© EnglishFull – Full English is here</div>
+</footer>
+
+</body>
+</html>
