@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<meta name="description" content="EnglishFull: bài tập tiếng Anh theo chuyên đề, có giải thích từng câu, thống kê phần yếu và làm lại câu sai."> 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -188,19 +189,63 @@
     return null;
   }
 
-  function load(){
+  var CACHE_KEY = 'ef_topics_v1';
+
+function readCache(){
+  try {
+    var raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    var obj = JSON.parse(raw);
+    return (obj && Array.isArray(obj.data)) ? obj : null;
+  } catch (e) { return null; }
+}
+
+function writeCache(data){
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), data: data }));
+  } catch (e) { /* bộ nhớ đầy hoặc bị chặn: bỏ qua */ }
+}
+
+function load(){
+  var cached = readCache();
+  var hasCache = !!cached;
+
+  if (hasCache) {
+    // Có cache: hiển thị ngay, không cần vòng xoay
+    DATA = cached.data;
+    buildChips();
+    render();
+  } else {
     document.getElementById('list').innerHTML = '<div class="state"><div class="spinner"></div>Đang tải danh sách chuyên đề...</div>';
-    fetch(API)
-      .then(function(res){ return res.json(); })
-      .then(function(r){
-        if (!r || !r.success) return fail(r && r.message);
-        DATA = r.data; buildChips(); render();
-      })
-      .catch(function(e){ fail(String(e)); });
   }
-  function fail(msg){
-    document.getElementById('list').innerHTML = '<div class="state err">Không tải được danh sách chuyên đề.<br><small>' + esc(msg||'') + '</small><br><button class="retry" onclick="load()">Thử lại</button></div>';
-  }
+
+  // Luôn gọi API ngầm để lấy dữ liệu mới nhất
+  fetch(API)
+    .then(function(res){ return res.json(); })
+    .then(function(r){
+      if (!r || !r.success) {
+        if (!hasCache) fail(r && r.message);
+        return;
+      }
+      // Chỉ vẽ lại nếu dữ liệu thật sự thay đổi
+      if (JSON.stringify(r.data) !== JSON.stringify(DATA)) {
+        DATA = r.data;
+        writeCache(DATA);
+        buildChips();
+        render();
+      } else {
+        writeCache(DATA); // làm mới thời điểm lưu
+      }
+    })
+    .catch(function(e){
+      if (!hasCache) fail(String(e));
+      // Có cache thì im lặng, người dùng vẫn thấy danh sách cũ
+    });
+}
+
+function fail(msg){
+  document.getElementById('list').innerHTML = '<div class="state err">Không tải được danh sách chuyên đề.<br><small>' + esc(msg||'') + '</small><br><button class="retry" onclick="load()">Thử lại</button></div>';
+}
 
   function groups(){
     var seen = {}, out = [];
@@ -209,22 +254,26 @@
   }
 
   function buildChips(){
-    var cnt = {};
-    DATA.forEach(function(t){ cnt[t.group] = (cnt[t.group] || 0) + 1; });
-    var h = '<button class="chip active" data-g=""><span>Tất cả</span><em>' + DATA.length + '</em></button>';
-    groups().forEach(function(g){
-      h += '<button class="chip" data-g="' + esc(g) + '"><span>' + esc(g) + '</span><em>' + cnt[g] + '</em></button>';
-    });
-    var c = document.getElementById('chips');
-    c.innerHTML = h;
-    activeGroup = '';
-    c.onclick = function(e){
-      var b = e.target.closest('.chip'); if(!b) return;
-      activeGroup = b.getAttribute('data-g');
-      [].forEach.call(c.children, function(x){ x.classList.toggle('active', x === b); });
-      render();
-    };
-  }
+  var cnt = {};
+  DATA.forEach(function(t){ cnt[t.group] = (cnt[t.group] || 0) + 1; });
+
+  // Nếu nhóm đang chọn không còn tồn tại thì về "Tất cả"
+  if (activeGroup && !cnt[activeGroup]) activeGroup = '';
+
+  var h = '<button class="chip' + (activeGroup === '' ? ' active' : '') + '" data-g=""><span>Tất cả</span><em>' + DATA.length + '</em></button>';
+  groups().forEach(function(g){
+    h += '<button class="chip' + (activeGroup === g ? ' active' : '') + '" data-g="' + esc(g) + '"><span>' + esc(g) + '</span><em>' + cnt[g] + '</em></button>';
+  });
+
+  var c = document.getElementById('chips');
+  c.innerHTML = h;
+  c.onclick = function(e){
+    var b = e.target.closest('.chip'); if(!b) return;
+    activeGroup = b.getAttribute('data-g');
+    [].forEach.call(c.children, function(x){ x.classList.toggle('active', x === b); });
+    render();
+  };
+}
 
   function render(){
     var q = noAccent(document.getElementById('q').value.trim());
