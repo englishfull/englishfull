@@ -2,11 +2,11 @@
 <html lang="vi">
 <head>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<meta charset="utf-8">  
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EnglishFull – Học tiếng Anh theo bản chất, có giải thích từng câu</title>
+<title>Bài tập tiếng Anh theo chuyên đề – EnglishFull</title>
 <meta name="description" content="Danh sách bài tập tiếng Anh theo chuyên đề: thì, câu điều kiện, mệnh đề quan hệ... Chọn chuyên đề và luyện ngay.">
-<link rel="canonical" href="https://englishfull.github.io/englishfull/">
+<link rel="canonical" href="https://englishfull.github.io/englishfull/exercises.html">
 <style>
   :root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--n6:#164192;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
   *{box-sizing:border-box}
@@ -149,6 +149,7 @@
       <nav class="nav" aria-label="Điều hướng">
         <a href="index.html" class="on" id="navHome">Trang chủ</a>
         <a href="exercises.html" id="navEx">Bài tập</a>
+        <a href="history.html" id="navHist" hidden>Lịch sử</a>
         <a id="lh" href="#lien-he" target="_self">Liên hệ</a>
       </nav>
   </div>
@@ -236,9 +237,16 @@
 </main>
 
 <footer>
-    <div>© EnglishFull – Full English is here · <a href="privacy.html">Quyền riêng tư</a> · <a href="terms.html">Điều khoản</a></div>
-  <div>© EnglishFull – Full English is here · <a href="privacy.html">Quyền riêng tư</a></div>
+  <div>© EnglishFull – Full English is here · <a href="privacy.html" style="text-decoration:underline">Quyền riêng tư</a> · <a href="terms.html" style="text-decoration:underline">Điều khoản</a></div>
 </footer>
 
+<script>
+  // Hiện nút "Lịch sử" khi đã đăng nhập (đăng nhập ở trang Bài tập)
+  try {
+    if (localStorage.getItem('ef_token') && localStorage.getItem('ef_user')) {
+      document.getElementById('navHist').hidden = false;
+    }
+  } catch (e) {}
+</script>
 </body>
 </html>
