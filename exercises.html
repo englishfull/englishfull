@@ -143,6 +143,7 @@
     <nav class="nav" aria-label="Điều hướng">
         <a href="index.html" id="navHome">Trang chủ</a>
         <a href="exercises.html" class="on" id="navEx">Bài tập</a>
+        <a href="history.html" id="navHist" hidden>Lịch sử</a>
         <a id="lh" href="#lien-he" target="_self">Liên hệ</a>
       </nav>
   </div>
@@ -221,11 +222,12 @@ var AUTH_API = 'https://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76r
   function renderAuth(){
     var bar = document.getElementById('authBar');
     bar.hidden = false;
+    document.getElementById('navHist').hidden = !(TOKEN && USER);
     if (TOKEN && USER) {
       bar.innerHTML = '<div class="who">' +
         (USER.picture ? '<img src="' + esc(USER.picture) + '" alt="" referrerpolicy="no-referrer">' : '') +
         '<span>' + esc(USER.name) + '</span></div>' +
-        '<div class="msg">Điểm các bài bạn làm sẽ được lưu vào lịch sử.</div>' +
+        '<div class="msg">Điểm các bài bạn làm sẽ được lưu vào lịch sử. <a href="history.html" style="color:var(--blue);font-weight:700">Xem thống kê ›</a></div>' +
         '<button class="out" onclick="logout()">Đăng xuất</button>';
       return;
     }
