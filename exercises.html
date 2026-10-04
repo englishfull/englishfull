@@ -222,7 +222,7 @@ var AUTH_API = 'https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59
   function renderAuth(){
     var bar = document.getElementById('authBar');
     bar.hidden = false;
-    document.getElementById('navHist').hidden = !(TOKEN && USER);
+    var nh = document.getElementById('navHist'); if (nh) nh.hidden = !(TOKEN && USER);
     if (TOKEN && USER) {
       bar.innerHTML = '<div class="who">' +
         (USER.picture ? '<img src="' + esc(USER.picture) + '" alt="" referrerpolicy="no-referrer">' : '') +
@@ -244,17 +244,21 @@ var AUTH_API = 'https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59
 
   function onCred(r){
     fetch(AUTH_API + '?api=login&idToken=' + encodeURIComponent(r.credential))
-      .then(function(x){ return x.json(); })
-      .then(function(d){
-        if (!d || !d.ok) { alert('Đăng nhập thất bại, thử lại nhé.'); return; }
+      .then(function(x){ return x.text(); })
+      .then(function(txt){
+        var d;
+        try { d = JSON.parse(txt); }
+        catch (e) { alert('Máy chủ không trả về JSON. Đầu phản hồi: ' + txt.slice(0, 120)); return; }
+        if (!d || !d.ok) { alert('Đăng nhập thất bại: máy chủ từ chối mã Google (kiểm tra CLIENT_ID trong Apps Script).'); return; }
         TOKEN = d.token; USER = { name: d.name, picture: d.picture || '' };
         try {
           localStorage.setItem('ef_token', TOKEN);
           localStorage.setItem('ef_user', JSON.stringify(USER));
         } catch (e) {}
-        renderAuth(); loadHistory(); render();
+        try { renderAuth(); loadHistory(); render(); }
+        catch (e) { console.error(e); alert('Đăng nhập được nhưng lỗi hiển thị: ' + e.message); }
       })
-      .catch(function(){ alert('Không kết nối được máy chủ, thử lại sau.'); });
+      .catch(function(e){ alert('Không gọi được máy chủ (' + e.message + '). Kiểm tra link AUTH_API và quyền "Anyone" của deployment.'); });
   }
 
   function loadHistory(){
