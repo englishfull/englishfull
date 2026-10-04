@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta name="description" content="EnglishFull: bài tập tiếng Anh theo chuyên đề, có giải thích từng câu, thống kê phần yếu và làm lại câu sai."> 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EnglishFull – Bài tập tiếng Anh theo chuyên đề có giải thích</title>
 <meta name="description" content="EnglishFull: luyện bài tập tiếng Anh theo chuyên đề, có giải thích từng câu, thống kê phần yếu và làm lại câu sai.">
-<link rel="canonical" href="https://englishfull.github.io/englishfull/">
+<link rel="canonical" href="https://englishfull.github.io/englishfull/exercises.html">
 <style>
   :root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--n6:#164192;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
   *{box-sizing:border-box}
@@ -110,7 +109,18 @@
   @media (max-width:520px){.btn img{width:120px}}
 
   footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:22px 14px;font-size:.9rem}
+  /* Đăng nhập + lịch sử */
+  .authbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:0 10px 30px rgba(6,23,51,.10);margin-bottom:14px}
+  .authbar[hidden]{display:none}
+  .authbar .who{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--n8)}
+  .authbar .who img{width:32px;height:32px;border-radius:50%}
+  .authbar .msg{color:var(--muted);font-size:.95rem}
+  .authbar .out{border:1.5px solid #bcd0f2;background:#fff;color:var(--n7);padding:6px 14px;border-radius:99px;font-weight:700;font-size:.88rem;cursor:pointer}
+  .authbar .out:hover{background:#eef3fd}
+  .hist{align-self:flex-start;padding:2px 11px;border-radius:99px;font-size:.78rem;font-weight:700;background:#f0fdf4;color:#166534}
+  footer a{color:#bfe3ff;text-decoration:underline}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -153,6 +163,7 @@
     </aside>
 
     <div class="content">
+      <div class="authbar" id="authBar" hidden></div>
       <div class="tools">
         <input class="search" id="q" type="search" placeholder="Tìm chuyên đề..." autocomplete="off" aria-label="Tìm chuyên đề">
       </div>
@@ -173,10 +184,93 @@
 
 
 
-<footer>© EnglishFull – Full English is here</footer>
+<footer>© EnglishFull – Full English is here · <a href="privacy.html">Quyền riêng tư</a> · <a href="terms.html">Điều khoản</a></footer>
 <script>
-  var API = 'https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQ-RGif9lKcSMc2xUe6_lbvI-Qofr_oWbi6tROe1sitC61D76ebZ5C5nWDU_B35qubmQ5SDbSx2GBHS0mKXFuYr10EN5IDx1CP5eYjHi1GjLf2S1D-CgCPL4G9IREi_6UzUXQH4rcnshXhZyl3I7ApKmQSZ6twOV9A01d94PJW987PuPnPmcnPE8GPXbxg97eESh_vyLtTECM79CEEgq7Hylpk0vWCid_SAjUQXwubFdpKeBOo9hau_DiqAVWwFeplNhCxbwe8SsrhKw938YbFfdCmEFL_6QiDVP6s0&lib=MfSdDvpuZztosXXfVLvZjEGf4QMM86CMa';
+  var API = 'http://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec?api=topics';
   var DATA = [], activeGroup = '';
+  /* ===== Đăng nhập Google + lịch sử làm bài ===== */
+  var CLIENT_ID = '136311245213-42pdn7h6vdi45e77do4cdk4fdt2pqe89.apps.googleusercontent.com';
+  // Dán Web app URL kết thúc bằng /exec (Apps Script > Deploy > Manage deployments)
+  var AUTH_API = 'http://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec?api=topics';
+  var TOKEN = '', USER = null, HIST = {};
+
+  function authReady(){ return /^https:\/\/script\.google\.com\/.+\/exec$/.test(AUTH_API); }
+  function topicKey(t){ return String(t.id || t.name || ''); }
+
+  function withToken(l){
+    if (!TOKEN || !l.ext || l.url.indexOf('script.google.com') === -1) return l.url;
+    return l.url + (l.url.indexOf('?') > -1 ? '&' : '?') + 't=' + encodeURIComponent(TOKEN);
+  }
+  function histBadge(t){
+    if (!TOKEN) return '';
+    var h = HIST[topicKey(t)];
+    return h ? '<span class="hist">Đã làm ' + h.attempts + ' lần · cao nhất ' + h.bestPct + '%</span>' : '';
+  }
+
+  function initAuth(){
+    if (!authReady()) return;
+    try {
+      TOKEN = localStorage.getItem('ef_token') || '';
+      USER = JSON.parse(localStorage.getItem('ef_user') || 'null');
+    } catch (e) {}
+    if (!USER) TOKEN = '';
+    renderAuth();
+    if (TOKEN) loadHistory();
+  }
+
+  function renderAuth(){
+    var bar = document.getElementById('authBar');
+    bar.hidden = false;
+    if (TOKEN && USER) {
+      bar.innerHTML = '<div class="who">' +
+        (USER.picture ? '<img src="' + esc(USER.picture) + '" alt="" referrerpolicy="no-referrer">' : '') +
+        '<span>' + esc(USER.name) + '</span></div>' +
+        '<div class="msg">Điểm các bài bạn làm sẽ được lưu vào lịch sử.</div>' +
+        '<button class="out" onclick="logout()">Đăng xuất</button>';
+      return;
+    }
+    bar.innerHTML = '<div class="msg">Đăng nhập bằng Google để lưu lịch sử làm bài.</div><div id="gbtn"></div>';
+    var tries = 0, wait = setInterval(function(){
+      tries++;
+      if (window.google && google.accounts && google.accounts.id) {
+        clearInterval(wait);
+        google.accounts.id.initialize({ client_id: CLIENT_ID, callback: onCred });
+        google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: 'outline', size: 'large', text: 'signin_with' });
+      } else if (tries > 50) { clearInterval(wait); }
+    }, 200);
+  }
+
+  function onCred(r){
+    fetch(AUTH_API + '?api=login&idToken=' + encodeURIComponent(r.credential))
+      .then(function(x){ return x.json(); })
+      .then(function(d){
+        if (!d || !d.ok) { alert('Đăng nhập thất bại, thử lại nhé.'); return; }
+        TOKEN = d.token; USER = { name: d.name, picture: d.picture || '' };
+        try {
+          localStorage.setItem('ef_token', TOKEN);
+          localStorage.setItem('ef_user', JSON.stringify(USER));
+        } catch (e) {}
+        renderAuth(); loadHistory(); render();
+      })
+      .catch(function(){ alert('Không kết nối được máy chủ, thử lại sau.'); });
+  }
+
+  function loadHistory(){
+    fetch(AUTH_API + '?api=history&token=' + encodeURIComponent(TOKEN))
+      .then(function(x){ return x.json(); })
+      .then(function(d){
+        if (!d || !d.ok) { if (d && d.error === 'auth') logout(); return; }
+        HIST = d.data || {};
+        render();
+      })
+      .catch(function(){ /* im lặng: vẫn dùng được danh sách */ });
+  }
+
+  function logout(){
+    try { localStorage.removeItem('ef_token'); localStorage.removeItem('ef_user'); } catch (e) {}
+    TOKEN = ''; USER = null; HIST = {};
+    renderAuth(); render();
+  }
 
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function noAccent(s){return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
@@ -293,7 +387,7 @@ function fail(msg){
       h += '<section class="group"><div class="group-h"><div class="gi">★</div><div><h2>' + esc(g) + '</h2><small>' + by[g].length + ' chuyên đề</small></div></div><div class="grid">';
       by[g].forEach(function(t){
         var l = hrefOf(t.link), body = '<h3>' + esc(t.name) + '</h3>' + (t.desc ? '<p>' + esc(t.desc) + '</p>' : '<p></p>');
-        if (l) h += '<a class="card" href="' + esc(l.url) + '" target="' + (l.ext ? '_blank" rel="noopener noreferrer' : '_self') + '">' + body + '<span class="go">Vào học ›</span></a>';
+        if (l) h += '<a class="card" href="' + esc(withToken(l)) + '" target="' + (l.ext ? '_blank" rel="noopener noreferrer' : '_self') + '">' + body + histBadge(t) + '<span class="go">Vào học ›</span></a>';
         else h += '<div class="card soon">' + body + '<span class="go">Sắp có</span></div>';
       });
       h += '</div></section>';
@@ -303,6 +397,7 @@ function fail(msg){
 
   document.getElementById('q').addEventListener('input', render);
   load();
+  initAuth();
 </script>
 </body>
 </html>
