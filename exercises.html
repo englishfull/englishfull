@@ -186,12 +186,12 @@
 
 <footer>© EnglishFull – Full English is here · <a href="privacy.html">Quyền riêng tư</a> · <a href="terms.html">Điều khoản</a></footer>
 <script>
-  var API = 'http://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec?api=topics';
+  var API = 'https://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec?api=topics';
+var AUTH_API = 'https://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec';
   var DATA = [], activeGroup = '';
   /* ===== Đăng nhập Google + lịch sử làm bài ===== */
   var CLIENT_ID = '136311245213-42pdn7h6vdi45e77do4cdk4fdt2pqe89.apps.googleusercontent.com';
   // Dán Web app URL kết thúc bằng /exec (Apps Script > Deploy > Manage deployments)
-  var AUTH_API = 'http://script.google.com/macros/s/AKfycbx5UBtkiQrEU9hi7Fd4tA76rCosL7e9O3njqt9e0GzswaNNRQFaWRf9byK1Ara1O9MU/exec?api=topics';
   var TOKEN = '', USER = null, HIST = {};
 
   function authReady(){ return /^https:\/\/script\.google\.com\/.+\/exec$/.test(AUTH_API); }
