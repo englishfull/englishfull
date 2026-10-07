@@ -56,7 +56,7 @@
   .wk{display:grid;grid-template-columns:minmax(120px,220px) 1fr 40px;gap:10px;align-items:center;margin-bottom:8px;font-size:.93rem}
   svg.chart{width:100%;height:auto;display:block}
   .muted{color:var(--muted)}
-  .who{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .who{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   .who h2{margin:0}
   footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:22px 14px;font-size:.9rem}
 </style>
@@ -240,8 +240,8 @@
 
   function renderUser(d){
     var u = d.user, att = d.attempts || [];
-    var h = '<div class="who"><div><h2>' + esc(u.name || '(chưa có tên)') + '</h2><div class="muted">' + esc(u.email) + ' · Đăng nhập lần đầu: ' + esc(fmtDate(u.joined)) + '</div></div>' +
-            '<button class="btn ghost" onclick="renderOverview()">‹ Quay lại danh sách</button></div>';
+    var h = '<section class="panel"><div class="who"><div><h2>' + esc(u.name || '(chưa có tên)') + '</h2><div class="muted">' + esc(u.email) + ' · Đăng nhập lần đầu: ' + esc(fmtDate(u.joined)) + '</div></div>' +
+            '<button class="btn ghost" onclick="renderOverview()">‹ Quay lại danh sách</button></div></section>';
     if (!att.length) { show(h + '<div class="panel center"><h2>Chưa làm bài nào</h2><p class="muted">Học viên này đã đăng nhập nhưng chưa nộp bài.</p></div>'); return; }
 
     att.sort(function(a, b){return new Date(a.t) - new Date(b.t)});
