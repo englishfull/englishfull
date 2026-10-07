@@ -150,6 +150,7 @@
         <a href="index.html" class="on" id="navHome">Trang chủ</a>
         <a href="exercises.html" id="navEx">Bài tập</a>
         <a href="history.html" id="navHist" hidden>Lịch sử</a>
+        <a href="admin.html" id="navAdmin" hidden>Quản lý</a>
         <a id="lh" href="#lien-he" target="_self">Liên hệ</a>
       </nav>
   </div>
@@ -243,6 +244,7 @@
 <script>
   // Hiện nút "Lịch sử" khi đã đăng nhập (đăng nhập ở trang Bài tập)
   try {
+    var na = document.getElementById('navAdmin'); if (na) na.hidden = !(localStorage.getItem('ef_token') && localStorage.getItem('ef_mgr') === '1');
     if (localStorage.getItem('ef_token') && localStorage.getItem('ef_user')) {
       document.getElementById('navHist').hidden = false;
     }

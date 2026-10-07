@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Quản lý học viên – EnglishFull</title>
+<style>
+  :root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;overflow-x:hidden}
+  body{font-family:'Times New Roman',Times,serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  a{color:inherit;text-decoration:none}
+  button,input,select{font-family:inherit}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+  .site-header{position:sticky;top:0;z-index:60;background:rgba(6,23,51,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1)}
+  .hd-in{max-width:1120px;margin:0 auto;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .logo{display:flex;align-items:center;gap:10px;color:#fff}
+  .logo svg{width:44px;height:44px;flex:none}
+  .logo b{display:block;font-size:1.2rem;line-height:1.1}
+  .logo small{display:block;font-size:.74rem;opacity:.75;line-height:1.2;font-style:italic}
+  .nav{display:flex;gap:4px}
+  .nav a{color:#dbe7ff;padding:8px 15px;border-radius:99px;font-weight:600;font-size:.93rem}
+  .nav a:hover{background:rgba(255,255,255,.12)}
+  .nav a.on{background:#fff;color:var(--n8)}
+  @media (max-width:520px){.logo small{display:none}.nav a{padding:7px 10px;font-size:.85rem}}
+  .top{color:#fff;text-align:center;padding:48px 16px 96px;background:linear-gradient(135deg,#061733 0%,#0c2a63 55%,#1a4a9c 100%)}
+  .top h1{margin:0 0 6px;font-size:2.4rem}
+  .top p{margin:0;opacity:.9;font-style:italic}
+  @media (max-width:520px){.top h1{font-size:1.7rem}}
+  .wrap{max-width:1040px;margin:-56px auto 0;padding:0 14px 40px;position:relative}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(6,23,51,.10);margin-bottom:18px}
+  .panel h2{margin:0 0 12px;color:var(--n8);font-size:1.25rem}
+  .center{text-align:center;padding:36px 20px}
+  .btn{display:inline-block;background:var(--n7);color:#fff;font-weight:700;padding:10px 20px;border-radius:12px;border:0;cursor:pointer;font-size:1rem}
+  .btn.ghost{background:#e4ecfb;color:var(--n7)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+  .sc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;box-shadow:0 10px 30px rgba(6,23,51,.10)}
+  .sc b{display:block;font-size:1.9rem;color:var(--n7);line-height:1.2}
+  .sc span{color:var(--muted);font-size:.9rem}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .tools input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #bcd0f2;border-radius:10px;background:#f6f9ff;font-size:.98rem}
+  .tools select{padding:10px 12px;border:1.5px solid #bcd0f2;border-radius:10px;background:#f6f9ff;font-size:.95rem}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:560px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{color:var(--muted);font-size:.82rem}
+  td.n{font-weight:700;color:var(--n8)}
+  tr.row{cursor:pointer}
+  tr.row:hover{background:#f5f8ff}
+  .em{display:block;color:var(--muted);font-size:.85rem;font-weight:400;overflow-wrap:anywhere}
+  .bar{height:8px;background:#e3e9f5;border-radius:99px;overflow:hidden;min-width:70px}
+  .bar b{display:block;height:100%;border-radius:99px}
+  .pill{display:inline-block;padding:1px 10px;border-radius:99px;font-weight:700;font-size:.85rem;color:#fff}
+  .wk{display:grid;grid-template-columns:minmax(120px,220px) 1fr 40px;gap:10px;align-items:center;margin-bottom:8px;font-size:.93rem}
+  svg.chart{width:100%;height:auto;display:block}
+  .muted{color:var(--muted)}
+  .who{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .who h2{margin:0}
+  footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:22px 14px;font-size:.9rem}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="hd-in">
+    <a class="logo" href="index.html" aria-label="EnglishFull – về trang chủ">
+      <svg viewBox="0 0 100 100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#ffffff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 18 64 V 28 C 25 24, 38 27, 45 31 V 67 C 38 63, 25 60, 18 64 Z"/>
+          <path d="M 45 31 C 52 27, 65 24, 72 28 V 50"/>
+          <path d="M 45 67 C 52 63, 65 60, 72 64"/>
+          <path d="M 30 40 H 45" stroke-width="6"/>
+          <path d="M 30 51 H 40" stroke-width="6"/>
+          <path d="M 28 51 L 45 51 L 62 33 L 78 17" stroke-width="7"/>
+          <path d="M 64 17 H 78 V 31" stroke-width="7"/>
+        </g>
+      </svg>
+      <span><b>EnglishFull</b><small>Full English is here</small></span>
+    </a>
+    <nav class="nav" aria-label="Điều hướng">
+      <a href="index.html">Trang chủ</a>
+      <a href="exercises.html">Bài tập</a>
+      <a href="history.html">Lịch sử</a>
+      <a href="admin.html" class="on">Quản lý</a>
+    </nav>
+  </div>
+</header>
+
+<section class="top">
+  <h1>Quản lý học viên</h1>
+  <p id="who">Theo dõi lịch sử làm bài của những người đã đăng nhập</p>
+</section>
+
+<main class="wrap"><div id="app"><div class="panel center muted">Đang tải dữ liệu...</div></div></main>
+
+<footer>© EnglishFull – Trang dành riêng cho người quản lý</footer>
+
+<script>
+  var BASE = 'https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59rb2HZacd9z6CVXbHWYlA17s2w2hRcD7UyRVx7PZ1IJn/exec';
+  var TOK = '', OV = null, NAMES = {}, sortBy = 'last', query = '';
+
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function noAccent(s){return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
+  function col(p){return p >= 80 ? '#16a34a' : (p >= 50 ? '#f59e0b' : '#dc2626')}
+  function pct(a){return a.total ? Math.round(a.score / a.total * 100) : 0}
+  function nm(id){return NAMES[id] || id}
+  function fmtDur(s){
+    s = Math.round(s || 0); if (!s) return '–';
+    var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60;
+    return h ? h + 'g ' + m + 'p' : m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function fmtDate(v){
+    var d = new Date(v); if (!v || isNaN(d)) return 'Chưa có';
+    return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+  }
+  function show(h){document.getElementById('app').innerHTML = h}
+  function msg(title, text, btn){
+    show('<div class="panel center"><h2>' + esc(title) + '</h2><p class="muted">' + esc(text) + '</p>' + (btn || '') + '</div>');
+  }
+  function post(body){
+    body.token = TOK;
+    // Không đặt headers để request là text/plain, Apps Script mới không chặn CORS
+    return fetch(BASE, {method: 'POST', body: JSON.stringify(body)}).then(function(r){return r.json()});
+  }
+  function clearLogin(){try {localStorage.removeItem('ef_token'); localStorage.removeItem('ef_user'); localStorage.removeItem('ef_mgr');} catch (e) {}}
+
+  function init(){
+    try {TOK = localStorage.getItem('ef_token') || '';} catch (e) {}
+    if (!TOK) return msg('Chưa đăng nhập', 'Hãy đăng nhập bằng tài khoản quản lý ở trang Bài tập.', '<a class="btn" href="exercises.html">Đến trang Bài tập</a>');
+
+    var topics = fetch(BASE + '?api=topics').then(function(r){return r.json()})
+      .then(function(r){return (r && r.success) ? r.data : []}).catch(function(){return []});
+    Promise.all([post({action: 'adminOverview'}), topics]).then(function(res){
+      var d = res[0];
+      res[1].forEach(function(t){NAMES[t.id || t.name] = t.name});
+      if (!d || !d.ok) {
+        if (d && d.error === 'auth') { clearLogin(); return msg('Phiên đăng nhập đã hết hạn', 'Hãy đăng nhập lại ở trang Bài tập.', '<a class="btn" href="exercises.html">Đăng nhập lại</a>'); }
+        if (d && d.error === 'forbidden') return msg('Không có quyền truy cập', 'Tài khoản này không phải tài khoản quản lý.', '<a class="btn" href="exercises.html">Về trang Bài tập</a>');
+        return msg('Không tải được dữ liệu', 'Kiểm tra kết nối rồi tải lại trang.');
+      }
+      OV = d; renderOverview();
+    }).catch(function(){msg('Không tải được dữ liệu', 'Kiểm tra kết nối, và chắc chắn Apps Script đã được deploy phiên bản mới.')});
+  }
+
+  /* ---------- Tổng quan ---------- */
+  function renderOverview(){
+    var t = OV.totals;
+    var h = '<div class="cards">' +
+      '<div class="sc"><b>' + t.users + '</b><span>Học viên đã đăng nhập</span></div>' +
+      '<div class="sc"><b>' + t.attempts + '</b><span>Lượt làm bài</span></div>' +
+      '<div class="sc"><b>' + t.avg + '%</b><span>Điểm trung bình</span></div>' +
+      '<div class="sc"><b>' + t.active7 + '</b><span>Hoạt động trong 7 ngày</span></div></div>';
+
+    h += '<section class="panel"><h2>Danh sách học viên</h2><div class="tools">' +
+      '<input id="q" type="search" placeholder="Tìm theo tên hoặc email..." aria-label="Tìm học viên" value="' + esc(query) + '">' +
+      '<select id="sort" aria-label="Sắp xếp">' +
+        opt('last', 'Hoạt động gần nhất') + opt('n', 'Làm nhiều nhất') + opt('avg', 'Điểm trung bình cao') +
+        opt('low', 'Điểm trung bình thấp') + opt('name', 'Tên A–Z') + opt('joined', 'Mới đăng nhập') +
+      '</select></div><div id="ulist"></div></section>';
+
+    var tests = OV.tests.slice().sort(function(a, b){return a.avg - b.avg});
+    h += '<section class="panel"><h2>Chuyên đề theo điểm trung bình</h2><p class="muted" style="margin-top:-6px">Chuyên đề điểm thấp nhất nằm trên cùng, đây có thể là bài khó hoặc cần xem lại nội dung.</p>';
+    if (!tests.length) h += '<p class="muted">Chưa có lượt làm bài nào.</p>';
+    else {
+      h += '<div class="scroll"><table><thead><tr><th>Chuyên đề</th><th>Lượt làm</th><th>Điểm trung bình</th></tr></thead><tbody>';
+      tests.forEach(function(x){
+        h += '<tr><td class="n">' + esc(nm(x.id)) + '</td><td>' + x.n + '</td>' +
+             '<td><div class="bar"><b style="width:' + x.avg + '%;background:' + col(x.avg) + '"></b></div><small class="muted">' + x.avg + '%</small></td></tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+    h += '</section>';
+    show(h);
+
+    document.getElementById('q').addEventListener('input', function(){query = this.value; drawUsers()});
+    document.getElementById('sort').addEventListener('change', function(){sortBy = this.value; drawUsers()});
+    drawUsers();
+  }
+  function opt(v, label){return '<option value="' + v + '"' + (sortBy === v ? ' selected' : '') + '>' + label + '</option>'}
+
+  function drawUsers(){
+    var q = noAccent(query.trim());
+    var list = OV.users.filter(function(u){return !q || noAccent(u.name + ' ' + u.email).indexOf(q) !== -1});
+    var cmp = {
+      last: function(a, b){return b.last - a.last},
+      n: function(a, b){return b.n - a.n},
+      avg: function(a, b){return b.avg - a.avg},
+      low: function(a, b){return (a.n ? a.avg : 999) - (b.n ? b.avg : 999)},
+      name: function(a, b){return a.name.localeCompare(b.name, 'vi')},
+      joined: function(a, b){return b.joined - a.joined}
+    };
+    list.sort(cmp[sortBy] || cmp.last);
+    var el = document.getElementById('ulist');
+    if (!list.length) { el.innerHTML = '<p class="muted">Không có học viên nào khớp.</p>'; return; }
+    var h = '<div class="scroll"><table><thead><tr><th>Học viên</th><th>Lần làm</th><th>Điểm TB</th><th>Cao nhất</th><th>Hoạt động gần nhất</th></tr></thead><tbody>';
+    list.forEach(function(u){
+      h += '<tr class="row" tabindex="0" data-sub="' + esc(u.sub) + '"><td class="n">' + esc(u.name || '(chưa có tên)') + '<span class="em">' + esc(u.email) + '</span></td>' +
+        '<td>' + u.n + '</td>' +
+        '<td>' + (u.n ? '<span class="pill" style="background:' + col(u.avg) + '">' + u.avg + '%</span>' : '<span class="muted">–</span>') + '</td>' +
+        '<td>' + (u.n ? u.best + '%' : '–') + '</td>' +
+        '<td class="muted">' + (u.last ? esc(fmtDate(u.last)) : 'Chưa làm bài') + '</td></tr>';
+    });
+    el.innerHTML = h + '</tbody></table></div><div class="muted" style="font-size:.85rem;margin-top:8px">' + list.length + ' học viên. Bấm vào một dòng để xem lịch sử chi tiết.</div>';
+    [].forEach.call(el.querySelectorAll('tr.row'), function(tr){
+      tr.onclick = function(){openUser(tr.getAttribute('data-sub'))};
+      tr.onkeydown = function(e){if (e.key === 'Enter') openUser(tr.getAttribute('data-sub'))};
+    });
+  }
+
+  /* ---------- Chi tiết một học viên ---------- */
+  function openUser(sub){
+    msg('Đang tải lịch sử...', '');
+    post({action: 'adminUser', sub: sub}).then(function(d){
+      if (!d || !d.ok) {
+        if (d && d.error === 'auth') { clearLogin(); return msg('Phiên đăng nhập đã hết hạn', 'Hãy đăng nhập lại.', '<a class="btn" href="exercises.html">Đăng nhập lại</a>'); }
+        return msg('Không tải được lịch sử', 'Thử lại sau.', '<button class="btn" onclick="renderOverview()">Quay lại danh sách</button>');
+      }
+      renderUser(d);
+    }).catch(function(){msg('Không tải được lịch sử', 'Kiểm tra kết nối.', '<button class="btn" onclick="renderOverview()">Quay lại danh sách</button>')});
+  }
+
+  function chart(att){
+    var pts = att.slice(-30), n = pts.length;
+    var W = 640, H = 220, L = 36, R = 14, T = 12, B = 26, iw = W - L - R, ih = H - T - B;
+    var s = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Biểu đồ điểm theo thời gian">';
+    [0, 50, 100].forEach(function(v){
+      var y = T + (1 - v / 100) * ih;
+      s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="#d9e2f3"/>' +
+           '<text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="#5b6b8c">' + v + '%</text>';
+    });
+    var xy = pts.map(function(a, i){return [L + (n > 1 ? i * iw / (n - 1) : iw / 2), T + (1 - pct(a) / 100) * ih]});
+    if (n > 1) s += '<polyline fill="none" stroke="#2563eb" stroke-width="2.5" points="' + xy.map(function(p){return p[0] + ',' + p[1]}).join(' ') + '"/>';
+    pts.forEach(function(a, i){
+      s += '<circle cx="' + xy[i][0] + '" cy="' + xy[i][1] + '" r="5" fill="' + col(pct(a)) + '" stroke="#fff" stroke-width="2"><title>' +
+           esc(nm(a.id)) + ': ' + a.score + '/' + a.total + ' (' + pct(a) + '%) – ' + esc(fmtDate(a.t)) + '</title></circle>';
+    });
+    return s + '</svg>';
+  }
+
+  function renderUser(d){
+    var u = d.user, att = d.attempts || [];
+    var h = '<div class="who"><div><h2>' + esc(u.name || '(chưa có tên)') + '</h2><div class="muted">' + esc(u.email) + ' · Đăng nhập lần đầu: ' + esc(fmtDate(u.joined)) + '</div></div>' +
+            '<button class="btn ghost" onclick="renderOverview()">‹ Quay lại danh sách</button></div>';
+    if (!att.length) { show(h + '<div class="panel center"><h2>Chưa làm bài nào</h2><p class="muted">Học viên này đã đăng nhập nhưng chưa nộp bài.</p></div>'); return; }
+
+    att.sort(function(a, b){return new Date(a.t) - new Date(b.t)});
+    var sum = 0, best = 0, time = 0, by = {}, weak = {};
+    att.forEach(function(a){
+      var p = pct(a); sum += p; time += a.dur || 0; if (p > best) best = p;
+      var o = by[a.id] || (by[a.id] = {id: a.id, n: 0, best: 0, sum: 0, last: a.t});
+      o.n++; o.sum += p; if (p > o.best) o.best = p; o.last = a.t;
+      String(a.weak || '').split(',').forEach(function(w){w = w.trim(); if (w) weak[w] = (weak[w] || 0) + 1});
+    });
+
+    h += '<div class="cards">' +
+      '<div class="sc"><b>' + att.length + '</b><span>Lần làm bài</span></div>' +
+      '<div class="sc"><b>' + Math.round(sum / att.length) + '%</b><span>Điểm trung bình</span></div>' +
+      '<div class="sc"><b>' + best + '%</b><span>Điểm cao nhất</span></div>' +
+      '<div class="sc"><b>' + fmtDur(time) + '</b><span>Tổng thời gian</span></div></div>';
+
+    h += '<section class="panel"><h2>Tiến bộ theo thời gian</h2>' + chart(att) +
+         '<div class="muted" style="font-size:.85rem">' + Math.min(att.length, 30) + ' lần làm gần nhất. Di chuột vào từng chấm để xem chi tiết.</div></section>';
+
+    var rows = Object.keys(by).map(function(k){return by[k]}).sort(function(a, b){return new Date(b.last) - new Date(a.last)});
+    h += '<section class="panel"><h2>Theo chuyên đề</h2><div class="scroll"><table><thead><tr><th>Chuyên đề</th><th>Lần</th><th>Cao nhất</th><th>Trung bình</th><th>Gần nhất</th></tr></thead><tbody>';
+    rows.forEach(function(o){
+      var avg = Math.round(o.sum / o.n);
+      h += '<tr><td class="n">' + esc(nm(o.id)) + '</td><td>' + o.n + '</td>' +
+           '<td><span class="pill" style="background:' + col(o.best) + '">' + o.best + '%</span></td>' +
+           '<td><div class="bar"><b style="width:' + avg + '%;background:' + col(avg) + '"></b></div><small class="muted">' + avg + '%</small></td>' +
+           '<td class="muted">' + esc(fmtDate(o.last)) + '</td></tr>';
+    });
+    h += '</tbody></table></div></section>';
+
+    var wk = Object.keys(weak).sort(function(a, b){return weak[b] - weak[a]}).slice(0, 8);
+    if (wk.length) {
+      var mx = weak[wk[0]];
+      h += '<section class="panel"><h2>Phần học viên hay sai</h2>';
+      wk.forEach(function(w){
+        h += '<div class="wk"><span>' + esc(w) + '</span><div class="bar"><b style="width:' + Math.round(weak[w] / mx * 100) + '%;background:#dc2626"></b></div><span class="muted">' + weak[w] + '×</span></div>';
+      });
+      h += '</section>';
+    }
+
+    h += '<section class="panel"><h2>Các lần làm gần đây</h2><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th></tr></thead><tbody>';
+    att.slice(-20).reverse().forEach(function(a){
+      var p = pct(a);
+      h += '<tr><td class="muted">' + esc(fmtDate(a.t)) + '</td><td class="n">' + esc(nm(a.id)) + '</td>' +
+           '<td><span class="pill" style="background:' + col(p) + '">' + a.score + '/' + a.total + ' · ' + p + '%</span></td>' +
+           '<td>' + fmtDur(a.dur) + '</td></tr>';
+    });
+    show(h + '</tbody></table></div></section>');
+    window.scrollTo(0, 0);
+  }
+
+  init();
+</script>
+</body>
+</html>

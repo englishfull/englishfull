@@ -179,6 +179,7 @@ footer a{color:#bfe3ff;text-decoration:underline}
       <a href="index.html">Trang chủ</a>
       <a href="exercises.html" class="on">Bài tập</a>
       <a href="history.html" id="navHist" hidden>Lịch sử</a>
+      <a href="admin.html" id="navAdmin" hidden>Quản lý</a>
     </nav>
   </div>
 </header>
@@ -237,8 +238,10 @@ var ALL = [], cur = [], wrongIds = [], res = [], flags = {};
 var submitted = false, cols4 = true, t0 = 0, elapsed = 0, timer = null;
 var $ = function (id) { return document.getElementById(id); };
 
+var na = document.getElementById('navAdmin'); if (na) na.hidden = !(localStorage.getItem('ef_token') && localStorage.getItem('ef_mgr') === '1');
 $('note').style.display = TOKEN ? 'none' : 'block';
 $('navHist').hidden = !TOKEN;
+var na = document.getElementById('navAdmin'); if (na) na.hidden = !(TOKEN && localStorage.getItem('ef_mgr') === '1');
 
 if (!TEST_ID) showError('Thiếu mã đề. Hãy chọn đề từ trang Bài tập.');
 else fetch(BASE + '?api=quiz&id=' + encodeURIComponent(TEST_ID))
