@@ -12,7 +12,11 @@
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const key = (q) => String(q.id);
   const typeOf = (q) => String(q.type || 'mc').toLowerCase().replace(/[\s-]+/g, '_');
-  const normalizeText = (value) => String(value == null ? '' : value).replace(/\r\n?/g, '\n').replace(/\\n|\/n/gi, '\n');
+  const normalizeText = (value) => String(value == null ? '' : value)
+    .replace(/\r\n?/g, '\n')
+    // Some Sheet rows put a period after the newline marker before a choice label.
+    .replace(/\/n\.?\s*(?=[a-d][.)])/gi, '\n')
+    .replace(/\\n|\/n/gi, '\n');
   const formatText = (value) => esc(normalizeText(value))
     .replace(/&lt;(\/?)\s*(b|strong|i|em|u|sub|sup)\s*&gt;/gi, '<$1$2>')
     .replace(/&lt;br\s*\/?\s*&gt;/gi, '<br>')
