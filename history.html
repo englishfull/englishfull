@@ -48,6 +48,8 @@
   .wk{display:grid;grid-template-columns:minmax(120px,220px) 1fr 40px;gap:10px;align-items:center;margin-bottom:8px;font-size:.93rem}
   svg.chart{width:100%;height:auto;display:block}
   .muted{color:var(--muted)}
+  .lnk{border:1.5px solid #bcd0f2;background:#fff;color:var(--n7);padding:4px 12px;border-radius:99px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+  .lnk:hover{background:#eef3fd}
   footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:22px 14px;font-size:.9rem}
   footer a{color:#bfe3ff;text-decoration:underline}
 </style>
@@ -88,6 +90,7 @@
 
 <footer>© EnglishFull – Full English is here · <a href="privacy.html">Quyền riêng tư</a> · <a href="terms.html">Điều khoản</a></footer>
 
+<script src="review.js"></script>
 <script>
   var BASE = 'https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59rb2HZacd9z6CVXbHWYlA17s2w2hRcD7UyRVx7PZ1IJn/exec';
   var TOK = '', USER = null, NAMES = {};
@@ -124,6 +127,8 @@
       TOK = localStorage.getItem('ef_token') || '';
       USER = JSON.parse(localStorage.getItem('ef_user') || 'null');
     } catch (e) {}
+    var na = document.getElementById('navAdmin');
+    try { if (na) na.hidden = !(TOK && localStorage.getItem('ef_mgr') === '1'); } catch (e) {}
     if (!TOK || !USER) return needLogin('Bạn cần đăng nhập bằng Google để xem lịch sử làm bài.');
     document.getElementById('who').textContent = 'Tài khoản: ' + USER.name;
     document.getElementById('out').style.display = '';
@@ -166,11 +171,20 @@
     return s + '</svg>';
   }
 
+  var ATT = [];
+  function wrongOf(a){
+    if (String(a.id).indexOf('Chép chính tả') === 0 || a.wrong == null || !a.row) return null;
+    if (a.score >= a.total) return [];
+    var w = String(a.wrong).trim();
+    if (!w || /^không có/i.test(w)) return [];
+    return w.split(',').map(function(x){return x.trim()}).filter(Boolean);
+  }
   function render(att){
     if (!att.length) {
       return show('<div class="panel center"><h2>Chưa có bài nào</h2><p class="muted">Làm một bài từ trang Bài tập, kết quả sẽ hiện ở đây.</p><a class="btn" href="exercises.html">Bắt đầu luyện tập</a></div>');
     }
     att.sort(function(a, b){return new Date(a.t) - new Date(b.t)});
+    ATT = att;
 
     var sum = 0, best = 0, time = 0, by = {}, weak = {};
     att.forEach(function(a){
@@ -212,15 +226,23 @@
       h += '</section>';
     }
 
-    h += '<section class="panel"><h2>Các lần làm gần đây</h2><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th></tr></thead><tbody>';
-    att.slice(-15).reverse().forEach(function(a){
-      var p = pct(a);
+    h += '<section class="panel"><h2>Các lần làm gần đây</h2><p class="muted" style="margin-top:-6px">Bấm “Xem câu sai” để xem lại các câu bạn đã làm sai.</p><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th><th>Câu sai</th></tr></thead><tbody>';
+    for (var i = att.length - 1; i >= Math.max(0, att.length - 30); i--) {
+      var a = att[i], p = pct(a), w = wrongOf(a), cell;
+      if (w === null) cell = '<span class="muted">–</span>';
+      else if (!w.length) cell = '<span class="muted">Không sai câu nào</span>';
+      else cell = '<button type="button" class="lnk" data-k="' + i + '">Xem ' + w.length + ' câu sai ›</button>';
       h += '<tr><td class="muted">' + esc(fmtDate(a.t)) + '</td><td class="n">' + esc(nm(a.id)) + '</td>' +
            '<td><span class="pill" style="background:' + col(p) + '">' + a.score + '/' + a.total + ' · ' + p + '%</span></td>' +
-           '<td>' + fmtDur(a.dur) + '</td></tr>';
-    });
+           '<td>' + fmtDur(a.dur) + '</td><td>' + cell + '</td></tr>';
+    }
     h += '</tbody></table></div></section>';
     show(h);
+    document.getElementById('app').onclick = function(e){
+      var b = e.target.closest('button[data-k]'); if (!b) return;
+      var a = ATT[+b.getAttribute('data-k')]; if (!a) return;
+      EFReview.open({base: BASE, token: TOK, row: a.row, testId: a.id, title: nm(a.id), score: a.score, total: a.total, when: fmtDate(a.t), who: USER && USER.name});
+    };
   }
   init();
 </script>

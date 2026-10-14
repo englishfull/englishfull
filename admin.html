@@ -58,6 +58,8 @@
   .muted{color:var(--muted)}
   .who{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   .who h2{margin:0}
+  .lnk{border:1.5px solid #bcd0f2;background:#fff;color:var(--n7);padding:4px 12px;border-radius:99px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+  .lnk:hover{background:#eef3fd}
   footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:22px 14px;font-size:.9rem}
 </style>
 </head>
@@ -96,8 +98,10 @@
 
 <footer>© EnglishFull – Trang dành riêng cho người quản lý</footer>
 
+<script src="review.js"></script>
 <script>
   var BASE = 'https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59rb2HZacd9z6CVXbHWYlA17s2w2hRcD7UyRVx7PZ1IJn/exec';
+  var CUR = {att: [], user: null};
   var TOK = '', OV = null, NAMES = {}, sortBy = 'last', query = '';
 
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -220,6 +224,13 @@
     }).catch(function(){msg('Không tải được lịch sử', 'Kiểm tra kết nối.', '<button class="btn" onclick="renderOverview()">Quay lại danh sách</button>')});
   }
 
+  function wrongOf(a){
+    if (String(a.id).indexOf('Chép chính tả') === 0 || a.wrong == null || !a.row) return null;
+    if (a.score >= a.total) return [];
+    var w = String(a.wrong).trim();
+    if (!w || /^không có/i.test(w)) return [];
+    return w.split(',').map(function(x){return x.trim()}).filter(Boolean);
+  }
   function chart(att){
     var pts = att.slice(-30), n = pts.length;
     var W = 640, H = 220, L = 36, R = 14, T = 12, B = 26, iw = W - L - R, ih = H - T - B;
@@ -283,17 +294,26 @@
       h += '</section>';
     }
 
-    h += '<section class="panel"><h2>Các lần làm gần đây</h2><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th></tr></thead><tbody>';
-    att.slice(-20).reverse().forEach(function(a){
-      var p = pct(a);
+    CUR.att = att; CUR.user = u;
+    h += '<section class="panel"><h2>Các lần làm gần đây</h2><p class="muted" style="margin-top:-6px">Bấm “Xem câu sai” để xem các câu học viên đã làm sai.</p><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th><th>Câu sai</th></tr></thead><tbody>';
+    for (var i = att.length - 1; i >= Math.max(0, att.length - 30); i--) {
+      var a = att[i], p = pct(a), w = wrongOf(a), cell;
+      if (w === null) cell = '<span class="muted">–</span>';
+      else if (!w.length) cell = '<span class="muted">Không sai câu nào</span>';
+      else cell = '<button type="button" class="lnk" data-k="' + i + '">Xem ' + w.length + ' câu sai ›</button>';
       h += '<tr><td class="muted">' + esc(fmtDate(a.t)) + '</td><td class="n">' + esc(nm(a.id)) + '</td>' +
            '<td><span class="pill" style="background:' + col(p) + '">' + a.score + '/' + a.total + ' · ' + p + '%</span></td>' +
-           '<td>' + fmtDur(a.dur) + '</td></tr>';
-    });
+           '<td>' + fmtDur(a.dur) + '</td><td>' + cell + '</td></tr>';
+    }
     show(h + '</tbody></table></div></section>');
     window.scrollTo(0, 0);
   }
 
+  document.getElementById('app').addEventListener('click', function(e){
+    var b = e.target.closest('button.lnk[data-k]'); if (!b) return;
+    var a = CUR.att[+b.getAttribute('data-k')]; if (!a) return;
+    EFReview.open({base: BASE, token: TOK, row: a.row, testId: a.id, title: nm(a.id), score: a.score, total: a.total, when: fmtDate(a.t), who: CUR.user && CUR.user.name});
+  });
   init();
 </script>
 </body>

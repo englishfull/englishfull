@@ -156,6 +156,9 @@ footer a{color:#bfe3ff;text-decoration:underline}
   .c2,.c4{grid-template-columns:minmax(0,1fr)}
   .tbar{grid-template-columns:1fr 52px}.tbar .bar{grid-column:1/-1;order:3}
 }
+.restored{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;color:#166534;font-size:.95rem}
+.restored button{border:1.5px solid #86efac;background:#fff;color:#166534;border-radius:99px;padding:5px 14px;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+.restored button:hover{background:#dcfce7}
 </style>
 </head>
 <body>
@@ -238,10 +241,9 @@ var ALL = [], cur = [], wrongIds = [], res = [], flags = {};
 var submitted = false, cols4 = true, t0 = 0, elapsed = 0, timer = null;
 var $ = function (id) { return document.getElementById(id); };
 
-var na = document.getElementById('navAdmin'); if (na) na.hidden = !(localStorage.getItem('ef_token') && localStorage.getItem('ef_mgr') === '1');
 $('note').style.display = TOKEN ? 'none' : 'block';
 $('navHist').hidden = !TOKEN;
-var na = document.getElementById('navAdmin'); if (na) na.hidden = !(TOKEN && localStorage.getItem('ef_mgr') === '1');
+try { $('navAdmin').hidden = !(TOKEN && localStorage.getItem('ef_mgr') === '1'); } catch (e) {}
 
 if (!TEST_ID) showError('Thiếu mã đề. Hãy chọn đề từ trang Bài tập.');
 else fetch(BASE + '?api=quiz&id=' + encodeURIComponent(TEST_ID))
@@ -264,7 +266,9 @@ function onLoaded(r) {
   if (r.title) { $('title').textContent = '📚 ' + r.title; document.title = r.title + ' – EnglishFull'; }
   ALL = r.data.map(function (q, i) { q.no = i + 1; return q; });
   if (!ALL.length) return showError('Chưa có câu hỏi nào trong trang tính NganHangCauHoi.');
+  var saved = readProgress();
   loadSet(ALL);
+  if (saved) applyProgress(saved);
 }
 function loadSet(list) {
   cur = list.slice(); submitted = false; wrongIds = []; flags = {}; res = [];
@@ -277,7 +281,63 @@ function loadSet(list) {
 function tick() {
   elapsed = Math.floor((Date.now() - t0) / 1000);
   $('timer').textContent = $('pMid').textContent = fmt(elapsed);
+  if (elapsed > 0 && elapsed % 15 === 0) saveProgress();
 }
+
+/* ---------- Tự động lưu tiến trình (khi chưa nộp bài) ---------- */
+var PROG_KEY = 'ef_prog_v1_' + TEST_ID, saveT = null;
+function qKey(q) { return String(q.id !== undefined && q.id !== '' ? q.id : 'n' + q.no); }
+function readProgress() {
+  try {
+    var o = JSON.parse(localStorage.getItem(PROG_KEY));
+    if (o && o.a && Date.now() - o.t < 30 * 24 * 3600 * 1000) return o;
+  } catch (e) {}
+  return null;
+}
+function clearProgress() { clearTimeout(saveT); try { localStorage.removeItem(PROG_KEY); } catch (e) {} }
+function saveProgress() {
+  if (submitted || !ALL.length || cur.length !== ALL.length) return;
+  var a = {}, f = {}, n = 0;
+  cur.forEach(function (q, i) {
+    var v = String(getAnswer(q, i));
+    if (v.trim() !== '') { a[qKey(q)] = v; n++; }
+    if (flags[i]) f[qKey(q)] = 1;
+  });
+  try {
+    if (!n && !Object.keys(f).length) localStorage.removeItem(PROG_KEY);
+    else localStorage.setItem(PROG_KEY, JSON.stringify({ t: Date.now(), e: elapsed, a: a, f: f }));
+  } catch (e) {}
+}
+function saveSoon() { clearTimeout(saveT); saveT = setTimeout(saveProgress, 400); }
+function applyProgress(p) {
+  var n = 0;
+  cur.forEach(function (q, i) {
+    var k = qKey(q), v = p.a[k];
+    if (v !== undefined) {
+      if (q.type === 'mc') {
+        var radios = document.querySelectorAll('input[name="q' + i + '"]');
+        for (var j = 0; j < radios.length; j++) {
+          if (radios[j].value === v) { radios[j].checked = true; radios[j].closest('.opt').classList.add('sel'); n++; break; }
+        }
+      } else { var el = $('in' + i); if (el) { el.value = v; n++; } }
+    }
+    if (p.f && p.f[k]) { flags[i] = true; $('card-' + i).classList.add('flagged'); }
+  });
+  t0 = Date.now() - (p.e || 0) * 1000; tick();
+  refresh();
+  if (n || Object.keys(p.f || {}).length) showRestored(p, n);
+}
+function showRestored(p, n) {
+  removeRestored();
+  var b = document.createElement('div'); b.id = 'restored'; b.className = 'restored';
+  b.innerHTML = '<span>Đã khôi phục bài làm dở: <b>' + n + '</b> câu đã trả lời, đã làm ' + fmt(p.e || 0) + '. Bài được tự động lưu khi bạn làm.</span>' +
+    '<button type="button" onclick="discardProgress()">Xóa và làm lại từ đầu</button>';
+  var q = $('quiz'); q.parentNode.insertBefore(b, q);
+}
+function removeRestored() { var b = $('restored'); if (b) b.remove(); }
+function discardProgress() { clearProgress(); removeRestored(); loadSet(ALL); }
+document.addEventListener('visibilitychange', function () { if (document.hidden) saveProgress(); });
+window.addEventListener('pagehide', saveProgress);
 
 /* ---------- Câu hỏi ---------- */
 function optsClass(q) {
@@ -312,7 +372,7 @@ function renderQuiz() {
       t.closest('.opts').querySelectorAll('.opt').forEach(function (o) { o.classList.remove('sel'); });
       t.closest('.opt').classList.add('sel');
     }
-    refresh();
+    refresh(); saveSoon();
   };
 }
 function getAnswer(q, i) {
@@ -352,7 +412,7 @@ function toggleFlag(i) {
   if (submitted) return;
   flags[i] = !flags[i];
   $('card-' + i).classList.toggle('flagged', !!flags[i]);
-  refresh();
+  refresh(); saveSoon();
 }
 function togglePalette(open) {
   $('palette').classList.toggle('open', open);
@@ -402,7 +462,7 @@ function submitAnswers(force) {
   closeModal(); doSubmit(blank);
 }
 function doSubmit(blank) {
-  var correct = 0, tm = {};
+  var correct = 0, tm = {}, ansMap = {};
   wrongIds = []; res = [];
   clearInterval(timer); tick();
   cur.forEach(function (q, i) {
@@ -412,27 +472,29 @@ function doSubmit(blank) {
     res[i] = { ok: ok };
     var tp = q.topic || NOTOPIC, s = tm[tp] || (tm[tp] = { topic: tp, correct: 0, total: 0, wrongNos: [] });
     s.total++;
-    if (ok) { correct++; s.correct++; } else { wrongIds.push(q.id); s.wrongNos.push(q.no); }
+    if (ok) { correct++; s.correct++; } else { wrongIds.push(q.id); s.wrongNos.push(q.no); ansMap[q.id] = ua; }
     mark(q, i, ok, ua);
   });
   submitted = true;
+  clearProgress(); removeRestored();
   var stats = Object.keys(tm).map(function (k) { return tm[k]; });
   renderResult(correct, cur.length, blank);
   renderPalette(); renderActions(); refresh();
   scrollTo({ top: 0, behavior: 'smooth' });
-  save(correct, stats);
+  save(correct, stats, ansMap);
   renderReview(stats);
 }
-function save(correct, stats) {
+function save(correct, stats, ansMap) {
   var st = $('saveMsg');
   if (!TOKEN) { st.textContent = '⚠ Bạn chưa đăng nhập nên điểm không được lưu vào lịch sử.'; return; }
   if (cur.length !== ALL.length) { st.textContent = 'Lượt luyện lại câu sai không được tính vào lịch sử.'; return; }
   var weak = stats.filter(function (s) { return s.topic !== NOTOPIC && s.correct < s.total; })
     .sort(function (a, b) { return (b.total - b.correct) - (a.total - a.correct); })
     .map(function (s) { return s.topic; }).join(', ');
-  var q = ['api=save', 'token=' + TOKEN, 'id=' + encodeURIComponent(TEST_ID), 'score=' + correct, 'total=' + cur.length,
-           'wrong=' + encodeURIComponent(wrongIds.join(', ')), 'weak=' + encodeURIComponent(weak), 'dur=' + elapsed].join('&');
-  fetch(BASE + '?' + q).then(function (r) { return r.json(); })
+  // POST dạng text/plain (không đặt headers) để Apps Script không chặn CORS; điểm và đáp án không nằm trên URL
+  fetch(BASE, { method: 'POST', body: JSON.stringify({ action: 'testSave', token: TOKEN, id: TEST_ID, score: correct, total: cur.length,
+      wrong: wrongIds.join(', '), weak: weak, dur: elapsed, ans: ansMap || {} }) })
+    .then(function (r) { return r.json(); })
     .then(function (r) {
       st.innerHTML = r && r.success ? '✓ Điểm đã được lưu. <a href="' + SITE + 'history.html">Xem lịch sử ›</a>'
                                     : '⚠ Chưa lưu được điểm' + (r && r.message ? ': ' + esc(r.message) : '');
