@@ -252,6 +252,13 @@ else fetch(BASE + '?api=quiz&id=' + encodeURIComponent(TEST_ID))
 
 /* ---------- Tiện ích ---------- */
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function formatText(s) {
+  var text = String(s == null ? '' : s).replace(/\r\n?/g, '\n').replace(/\\n|\/n/gi, '\n');
+  return esc(text)
+    .replace(/&lt;(\/?)\s*(b|strong|i|em|u|sub|sup)\s*&gt;/gi, '<$1$2>')
+    .replace(/&lt;br\s*\/?\s*&gt;/gi, '<br>')
+    .replace(/\n/g, '<br>');
+}
 function norm(s) { return String(s).trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.,'"’]/g, ''); }
 function optBody(o) { return o.replace(/^[A-Za-z]\s*[.)]\s*/, ''); }
 function fmt(s) { var m = Math.floor(s / 60), r = s % 60; return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r; }
@@ -354,14 +361,14 @@ function renderQuiz() {
       body = '<div class="opts ' + optsClass(q) + '">' + q.options.map(function (o) {
         var L = o.charAt(0).toUpperCase();
         return '<label class="opt" data-letter="' + esc(L) + '"><input type="radio" name="q' + i + '" value="' + esc(L) + '">' +
-               '<span class="lt">' + esc(L) + '</span><span>' + esc(optBody(o)) + '</span></label>';
+               '<span class="lt">' + esc(L) + '</span><span>' + formatText(optBody(o)) + '</span></label>';
       }).join('') + '</div>';
     } else {
       body = '<input type="text" class="ans" id="in' + i + '" placeholder="Nhập câu trả lời của bạn..." autocomplete="off">';
     }
     var card = document.createElement('div');
     card.className = 'q'; card.id = 'card-' + i;
-    card.innerHTML = '<div class="q-head"><div class="q-no">' + q.no + '</div><div class="q-text">' + q.question + '</div>' +
+    card.innerHTML = '<div class="q-head"><div class="q-no">' + q.no + '</div><div class="q-text">' + formatText(q.question) + '</div>' +
       '<button class="flag" title="Đánh dấu để xem lại" onclick="toggleFlag(' + i + ')">🚩</button></div>' + body + '<div id="fb' + i + '"></div>';
     box.appendChild(card);
   });
@@ -517,12 +524,12 @@ function mark(q, i, ok, ua) {
   var tag = q.topic ? '<span class="fb-topic">' + esc(q.topic) + '</span>' : '';
   var html;
   if (ok) {
-    html = '<div class="fb ok"><div class="fb-h">✓ Chính xác!' + tag + '</div><div class="fb-x"><strong>Phân tích:</strong> ' + q.explanation + '</div></div>';
+    html = '<div class="fb ok"><div class="fb-h">✓ Chính xác!' + tag + '</div><div class="fb-x"><strong>Phân tích:</strong> ' + formatText(q.explanation) + '</div></div>';
   } else {
     var detail = q.type === 'mc'
-      ? (ua ? '' : 'Bạn chưa chọn đáp án. ') + 'Đáp án đúng: <strong>' + esc(q.correctAnswer) + '</strong>'
-      : 'Bạn viết: <em>' + (ua.trim() ? esc(ua) : '(bỏ trống)') + '</em><br>Đáp án chuẩn: <strong>' + esc(q.correctAnswer) + '</strong>';
-    html = '<div class="fb bad"><div class="fb-h">✗ Chưa chính xác' + tag + '</div><div>' + detail + '</div><div class="fb-x"><strong>Phân tích lỗi sai:</strong> ' + q.explanation + '</div></div>';
+      ? (ua ? '' : 'Bạn chưa chọn đáp án. ') + 'Đáp án đúng: <strong>' + formatText(q.correctAnswer) + '</strong>'
+      : 'Bạn viết: <em>' + (ua.trim() ? esc(ua) : '(bỏ trống)') + '</em><br>Đáp án chuẩn: <strong>' + formatText(q.correctAnswer) + '</strong>';
+    html = '<div class="fb bad"><div class="fb-h">✗ Chưa chính xác' + tag + '</div><div>' + detail + '</div><div class="fb-x"><strong>Phân tích lỗi sai:</strong> ' + formatText(q.explanation) + '</div></div>';
   }
   $('fb' + i).innerHTML = html;
 }

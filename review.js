@@ -38,7 +38,8 @@
   // Chỉ giữ lại thẻ định dạng cơ bản (đậm, nghiêng, gạch chân...), bỏ mọi thẻ và thuộc tính khác
   function clean(html) {
     var t = document.createElement('template');
-    t.innerHTML = String(html == null ? '' : html);
+    var source = String(html == null ? '' : html).replace(/\r\n?/g, '\n').replace(/\\n|\/n/gi, '\n').replace(/\n/g, '<br>');
+    t.innerHTML = source;
     var allowed = { B: 1, I: 1, U: 1, STRONG: 1, EM: 1, BR: 1, SUB: 1, SUP: 1 };
     (function walk(node) {
       Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
@@ -113,12 +114,12 @@
         var L = String(op).charAt(0).toUpperCase(), cls = '', tag = '';
         if (L === correct.toUpperCase()) { cls = ' ok'; tag = '✓ Đáp án đúng'; }
         else if (has && ua.toUpperCase() === L) { cls = ' bad'; tag = '✗ Bạn đã chọn'; }
-        return '<div class="efrv-o' + cls + '"><b>' + esc(L) + '</b><span>' + esc(optBody(op)) + '</span>' + (tag ? '<em>' + tag + '</em>' : '') + '</div>';
+        return '<div class="efrv-o' + cls + '"><b>' + esc(L) + '</b><span>' + clean(optBody(op)) + '</span>' + (tag ? '<em>' + tag + '</em>' : '') + '</div>';
       }).join('') + '</div>';
       if (has && ua.trim() === '') h += '<div class="efrv-line"><span class="bad">Bỏ trống câu này.</span></div>';
     } else {
       if (has) h += '<div class="efrv-line">Đã viết: <b class="bad">' + (ua.trim() ? esc(ua) : '(bỏ trống)') + '</b></div>';
-      h += '<div class="efrv-line">Đáp án chuẩn: <b class="ok">' + esc(correct) + '</b></div>';
+      h += '<div class="efrv-line">Đáp án chuẩn: <b class="ok">' + clean(correct) + '</b></div>';
     }
     if (!has) h += '<div class="efrv-note">Lần làm này chưa lưu lại đáp án đã chọn, chỉ có đáp án đúng.</div>';
     if (q.explanation) h += '<div class="efrv-x2"><b>Phân tích:</b> ' + clean(q.explanation) + '</div>';

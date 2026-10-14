@@ -12,7 +12,13 @@
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const key = (q) => String(q.id);
   const typeOf = (q) => String(q.type || 'mc').toLowerCase().replace(/[\s-]+/g, '_');
-  const paperText = (value) => esc(value).replace(/\[\[([\s\S]*?)\]\]/g, '<u>$1</u>');
+  const normalizeText = (value) => String(value == null ? '' : value).replace(/\r\n?/g, '\n').replace(/\\n|\/n/gi, '\n');
+  const formatText = (value) => esc(normalizeText(value))
+    .replace(/&lt;(\/?)\s*(b|strong|i|em|u|sub|sup)\s*&gt;/gi, '<$1$2>')
+    .replace(/&lt;br\s*\/?\s*&gt;/gi, '<br>')
+    .replace(/\[\[([\s\S]*?)\]\]/g, '<u>$1</u>')
+    .replace(/\n/g, '<br>');
+  const paperText = formatText;
   const clean = (value) => String(value || '').trim().toLowerCase().replace(/[.,'’]/g, '').replace(/\s+/g, ' ');
   const formatTime = (value) => String(Math.floor(value / 60)).padStart(2, '0') + ':' + String(value % 60).padStart(2, '0');
   const sectionName = (q) => String(q.section || 'Phần 1');
@@ -71,7 +77,7 @@
         const match = String(option).match(/^([A-D])\s*[.)]/i);
         const choice = match ? match[1].toUpperCase() : String(option).trim();
         const label = String(option).replace(/^[A-D]\s*[.)]\s*/i, '');
-        return '<label class="choice"><input type="radio" name="answer-'+esc(key(q))+'" value="'+esc(choice)+'" data-answer="'+esc(key(q))+'" '+(value===choice?'checked':'')+'><span>'+(mode==='school'?paperText(label):esc(label))+'</span></label>';
+        return '<label class="choice"><input type="radio" name="answer-'+esc(key(q))+'" value="'+esc(choice)+'" data-answer="'+esc(key(q))+'" '+(value===choice?'checked':'')+'><span>'+formatText(label)+'</span></label>';
       }).join('') + '</div>';
     }
     if (['essay','writing','speaking','long_answer'].includes(type)) {
@@ -113,7 +119,7 @@
     return '<article class="paper-question" id="question-'+esc(id)+'" data-qcard="'+esc(id)+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+question+'</span></div>'+options+response+'</article>';
   }
   function paperStimulusHtml(value,section,part) {
-    const raw=String(value||'').replace(/\r\n?/g,'\n').trim(),label=[section,part].join(' ');
+    const raw=normalizeText(value).trim(),label=[section,part].join(' ');
     const markers=raw.match(/(?:^|\s)[a-d][.)]\s+(?=(?:[A-Z][A-Za-z'’ -]{1,24}:\s*)?[A-Z])/gi)||[];
     const sentenceOrder=/sentence\s*(?:order|ordering)|reorder|sắp xếp/i.test(label)||(markers.length>=2&&/(?:^|\s)[a-d][.)]\s+[A-Z][A-Za-z'’ -]{1,24}:/.test(raw));
     if(!sentenceOrder&&!/(communication|conversation|dialogue|hội thoại)/i.test(label))return paperText(raw);
@@ -226,8 +232,8 @@
     $('part-tabs').innerHTML=parts.map(p=>'<button type="button" class="part-tab '+(p===selectedPart?'active':'')+'" data-part="'+esc(p)+'">'+esc(p)+'</button>').join('');
     $('part-tabs').onclick=(event)=>{const b=event.target.closest('[data-part]');if(!b)return;selectedPart=b.dataset.part;current=exam.questions.findIndex(x=>sectionName(x)===selectedSection&&partName(x)===selectedPart);renderIelts()};
     $('stimulus-title').textContent=selectedSection+(q&&q.part?' · '+q.part:'');
-    $('stimulus-content').innerHTML=(q&&q.stimulus?'<div class="passage">'+esc(q.stimulus)+'</div>':'<p class="empty-stimulus">Đề bài hoặc đoạn văn sẽ hiển thị ở đây.</p>')+(q?mediaHtml(q):'');
-    $('question-content').innerHTML=q?'<div class="q-kicker">Question '+(current+1)+' of '+exam.questions.length+'</div><h2>'+esc(q.question)+'</h2>'+answerControl(q):'';
+    $('stimulus-content').innerHTML=(q&&q.stimulus?'<div class="passage">'+formatText(q.stimulus)+'</div>':'<p class="empty-stimulus">Đề bài hoặc đoạn văn sẽ hiển thị ở đây.</p>')+(q?mediaHtml(q):'');
+    $('question-content').innerHTML=q?'<div class="q-kicker">Question '+(current+1)+' of '+exam.questions.length+'</div><h2>'+formatText(q.question)+'</h2>'+answerControl(q):'';
     bindAnswerInput($('question-content'));
     $('prev').disabled=current<=0;$('next').disabled=current>=exam.questions.length-1;
     $('prev').onclick=()=>{if(current>0){current--;selectedSection=sectionName(exam.questions[current]);selectedPart=partName(exam.questions[current]);renderIelts()}};
@@ -263,7 +269,7 @@
     let score=0,total=0;const wrong=[],unkeyedCount=exam.questions.filter(q=>!String(q.correctAnswer||'').trim()).length;
     exam.questions.forEach(q=>{const result=isCorrect(q);if(result===null)return;total++;if(result)score++;else wrong.push(q)});
     const answerKey=exam.questions.filter(q=>String(q.correctAnswer||'').trim());
-    const review=answerKey.length?'<details class="answer-review" open><summary>Đáp án và giải thích</summary>'+answerKey.map(q=>'<article class="review-item"><b>Câu '+qNumber(q)+': '+esc(q.question)+'</b><p>Đáp án đúng: '+esc(displayAnswer(q,q.correctAnswer))+'</p><p>Đáp án của bạn: '+esc(displayAnswer(q,answers[key(q)]))+'</p>'+(q.explanation?'<p class="explanation">'+paperText(q.explanation)+'</p>':'')+'</article>').join('')+'</details>':'';
+    const review=answerKey.length?'<details class="answer-review" open><summary>Đáp án và giải thích</summary>'+answerKey.map(q=>'<article class="review-item"><b>Câu '+qNumber(q)+': '+formatText(q.question)+'</b><p>Đáp án đúng: '+formatText(displayAnswer(q,q.correctAnswer))+'</p><p>Đáp án của bạn: '+esc(displayAnswer(q,answers[key(q)]))+'</p>'+(q.explanation?'<p class="explanation">'+formatText(q.explanation)+'</p>':'')+'</article>').join('')+'</details>':'';
     $('result').hidden=false;
     const manualCount=exam.questions.filter(q=>['essay','writing','speaking','long_answer'].includes(typeOf(q))&&!String(q.correctAnswer||'').trim()).length;
     $('result').innerHTML='<h2>Kết quả làm bài</h2><p class="result-score">'+(total?'Đúng '+score+'/'+total+' câu chấm tự động ('+Math.round(score/total*100)+'%)':'Đề này không có câu chấm tự động.')+'</p>'+(unkeyedCount?'<p>'+unkeyedCount+' câu chưa có đáp án chuẩn nên không được tính vào điểm tự động.</p>':'')+(manualCount?'<p>'+manualCount+' câu viết hoặc câu tự luận đang chờ giáo viên chấm.'+(mode==='ielts'?' Hệ thống không tự quy đổi phần này thành band IELTS.':'')+'</p>':'')+review+'<div id="save-state"></div>';
