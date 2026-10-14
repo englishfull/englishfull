@@ -53,6 +53,20 @@
   .pick select{flex:1;min-width:200px;max-width:520px;padding:10px 12px;border:1.5px solid #bcd0f2;border-radius:10px;background:#f6f9ff;font-size:1rem;color:var(--n7);font-weight:700}
   .pick select:focus{border-color:var(--n6);background:#fff}
 
+  /* Danh sách bài */
+  .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .lcard{display:flex;flex-direction:column;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px 14px 20px;position:relative;overflow:hidden;transition:.18s}
+  .lcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--blue),var(--sky))}
+  .lcard h3{margin:0;font-size:1.05rem;color:var(--n7);overflow-wrap:anywhere}
+  .lcard .go{margin-top:auto;font-weight:700;color:var(--blue);font-size:.9rem}
+  a.lcard:hover{border-color:#7f9fdc;background:#f5f8ff;transform:translateY(-3px);box-shadow:0 12px 24px rgba(15,49,112,.14)}
+  .lcard.soon{background:#f8faff}
+  .lcard.soon::before{background:#c8d6f0}
+  .lcard.soon .go{color:#8aa0cc}
+  .back{margin:0 0 12px}
+  .back a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 16px;font-weight:700;color:var(--n7);box-shadow:0 6px 18px rgba(6,23,51,.10)}
+  .back a:hover{background:#eef3fd}
+
   /* Thống kê */
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
   .sc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;text-align:center;box-shadow:0 10px 30px rgba(6,23,51,.10)}
@@ -145,15 +159,22 @@
 </header>
 
 <section class="top">
-  <h1>Luyện chép chính tả</h1>
-  <p>Nghe từng câu, gõ lại những gì bạn nghe được.</p>
+  <h1 id="pageTitle">Luyện chép chính tả</h1>
+  <p id="pageSub">Nghe từng câu, gõ lại những gì bạn nghe được.</p>
 </section>
 
 <main class="wrap">
-  <section class="panel pick">
-    <label for="lessonSel">Chọn bài nghe:</label>
-    <select id="lessonSel" aria-label="Chọn bài nghe"><option>Đang tải danh sách bài...</option></select>
-  </section>
+  <!-- Chế độ 1: danh sách bài, mỗi bài là một link riêng -->
+  <div id="listView" hidden>
+    <section class="panel">
+      <h2>Danh sách bài chép chính tả</h2>
+      <div class="lgrid" id="lessonGrid"><div class="state"><div class="spinner"></div>Đang tải danh sách bài...</div></div>
+    </section>
+  </div>
+
+  <!-- Chế độ 2: một bài (dictation.html?id=...) -->
+  <div id="lessonView" hidden>
+  <p class="back"><a href="dictation.html">‹ Tất cả bài chép chính tả</a></p>
 
   <div class="cards">
     <div class="sc"><b id="dTimer">00:00</b><span>Thời gian làm bài</span></div>
@@ -184,6 +205,7 @@
       </div>
       <div id="qlist"><div class="state"><div class="spinner"></div>Đang tải nội dung bài nghe...</div></div>
     </section>
+  </div>
   </div>
 </main>
 
@@ -248,50 +270,51 @@
     else if (e.key === 'ArrowRight') { e.preventDefault(); seekAudio(2); }
   });
 
-  /* ---------- Danh sách bài ---------- */
-  function fillSelect(list, wanted){
-    var sel = $('lessonSel'); sel.innerHTML = '';
-    list.forEach(function(l){
-      var o = document.createElement('option'); o.value = l.id; o.textContent = l.title; sel.appendChild(o);
-    });
-    if (wanted && list.some(function(l){return l.id === wanted})) sel.value = wanted;
+  /* ---------- Mỗi bài là một link riêng: dictation.html?id=... ---------- */
+  var LESSON_ID = new URLSearchParams(location.search).get('id') || '';
+  function lessonUrl(id){ return 'dictation.html?id=' + encodeURIComponent(id); }
+
+  function drawLessons(list){
+    if (!list.length) { $('lessonGrid').innerHTML = '<div class="state">Chưa có bài nghe nào.</div>'; return; }
+    $('lessonGrid').innerHTML = list.map(function(l){
+      return l.videoId
+        ? '<a class="lcard" href="' + esc(lessonUrl(l.id)) + '"><h3>' + esc(l.title) + '</h3><span class="go">Vào luyện ›</span></a>'
+        : '<div class="lcard soon"><h3>' + esc(l.title) + '</h3><span class="go">Sắp có</span></div>';
+    }).join('');
   }
   function loadList(){
-    var wanted = new URLSearchParams(location.search).get('id') || '';
     var cached = null;
     try { cached = JSON.parse(localStorage.getItem(LIST_KEY)); } catch (e) {}
-    var started = false;
-    if (cached && cached.length) { fillSelect(cached, wanted); started = true; loadLesson($('lessonSel').value); }
-
+    if (cached && cached.length) drawLessons(cached);
     fetch(BASE + '?api=dict_list').then(function(r){return r.json()}).then(function(r){
-      if (!r || !r.success || !r.data.length) {
-        if (!started) $('qlist').innerHTML = '<div class="state">Chưa có bài nghe nào. ' + esc((r && r.message) || '') + '</div>';
+      if (!r || !r.success) {
+        if (!cached) $('lessonGrid').innerHTML = '<div class="state">Không tải được danh sách bài. ' + esc((r && r.message) || '') + '</div>';
         return;
       }
-      var prev = $('lessonSel').value;
-      var changed = JSON.stringify(r.data) !== JSON.stringify(cached);
       try { localStorage.setItem(LIST_KEY, JSON.stringify(r.data)); } catch (e) {}
-      if (changed) fillSelect(r.data, started ? prev : wanted);
-      if (!started) loadLesson($('lessonSel').value);
+      if (JSON.stringify(r.data) !== JSON.stringify(cached)) drawLessons(r.data);
     }).catch(function(){
-      if (!started) $('qlist').innerHTML = '<div class="state">Không tải được danh sách bài. Kiểm tra kết nối rồi tải lại trang.</div>';
+      if (!cached) $('lessonGrid').innerHTML = '<div class="state">Không tải được danh sách bài. Kiểm tra kết nối rồi tải lại trang.</div>';
     });
   }
-  $('lessonSel').addEventListener('change', function(){ loadLesson(this.value); });
 
   function loadLesson(id){
-    if (!id) return;
-    if (seekTimer) clearInterval(seekTimer);
-    if (player && player.pauseVideo) try { player.pauseVideo(); } catch (e) {}
     $('qlist').innerHTML = '<div class="state"><div class="spinner"></div>Đang tải nội dung bài nghe...</div>';
+    var back = '<br><a href="dictation.html" style="color:var(--blue);font-weight:700;text-decoration:underline">‹ Về danh sách bài</a>';
     fetch(BASE + '?api=dict_data&id=' + encodeURIComponent(id)).then(function(r){return r.json()}).then(function(r){
       if (!r || !r.success) {
-        $('qlist').innerHTML = '<div class="state">' + esc((r && r.message) || 'Không tải được bài nghe.') + '</div>';
+        $('pageTitle').textContent = 'Không mở được bài';
+        $('qlist').innerHTML = '<div class="state">' + esc((r && r.message) || 'Không tải được bài nghe.') + back + '</div>';
         return;
       }
-      DATA = r; startLesson();
+      DATA = r;
+      $('pageTitle').textContent = r.title;
+      document.title = r.title + ' – Chép chính tả – EnglishFull';
+      var cn = document.querySelector('link[rel=canonical]');
+      if (cn) cn.href = 'https://englishfull.github.io/englishfull/' + lessonUrl(r.lessonId);
+      startLesson();
     }).catch(function(){
-      $('qlist').innerHTML = '<div class="state">Không tải được bài nghe. Kiểm tra kết nối rồi thử lại.</div>';
+      $('qlist').innerHTML = '<div class="state">Không tải được bài nghe. Kiểm tra kết nối rồi thử lại.' + back + '</div>';
     });
   }
 
@@ -480,7 +503,15 @@
     });
   }
 
-  loadList();
+  if (LESSON_ID) {
+    $('lessonView').hidden = false;
+    $('pageTitle').textContent = 'Đang tải bài...';
+    loadLesson(LESSON_ID);
+  } else {
+    $('listView').hidden = false;
+    $('pageSub').textContent = 'Chọn một bài để bắt đầu.';
+    loadList();
+  }
 </script>
 </body>
 </html>
