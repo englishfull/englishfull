@@ -80,6 +80,38 @@
     const placeholders={short:'Nhập từ hoặc cụm từ còn thiếu…',fill:'Nhập từ hoặc cụm từ còn thiếu…',fill_in:'Nhập từ hoặc cụm từ còn thiếu…',fill_blank:'Nhập từ hoặc cụm từ còn thiếu…',fillblank:'Nhập từ hoặc cụm từ còn thiếu…',short_answer:'Nhập câu trả lời ngắn…',rewrite:'Viết lại câu hoàn chỉnh…',rewrite_sentence:'Viết lại câu hoàn chỉnh…',arrange:'Sắp xếp các từ thành câu hoàn chỉnh…',reorder:'Sắp xếp các từ thành câu hoàn chỉnh…',word_order:'Sắp xếp các từ thành câu hoàn chỉnh…',sentence_order:'Sắp xếp các từ thành câu hoàn chỉnh…',complete:'Viết câu hoàn chỉnh…',complete_sentence:'Viết câu hoàn chỉnh…',sentence_completion:'Viết câu hoàn chỉnh…'};
     return '<input class="short-answer" type="text" data-answer="'+esc(key(q))+'" value="'+esc(value)+'" autocomplete="off" placeholder="'+esc(placeholders[type]||'Nhập câu trả lời…')+'">';
   }
+  function choiceOptions(q) {
+    const type=typeOf(q);
+    const options=Array.isArray(q.options)&&q.options.length?q.options:(type==='tfng'?['True','False','Not Given']:type==='ynng'?['Yes','No','Not Given']:[]);
+    return options.map((option,index)=>{
+      const raw=String(option),match=raw.match(/^([A-D])\s*[.)]/i),value=match?match[1].toUpperCase():raw.trim();
+      const label=raw.replace(/^[A-D]\s*[.)]\s*/i,'');
+      const marker=match?match[1].toUpperCase():(['tfng','ynng'].includes(type)?value:String.fromCharCode(65+index));
+      return {value:value,label:label,marker:marker};
+    });
+  }
+  function paperAnswerControl(q) {
+    const type=typeOf(q),choiceTypes=['mc','mcq','tfng','ynng'];
+    if(!choiceTypes.includes(type))return answerControl(q);
+    return '<div class="answer-bubbles">'+choiceOptions(q).map((option)=>'<label class="answer-bubble" title="'+esc(option.label)+'"><input type="radio" name="answer-'+esc(key(q))+'" value="'+esc(option.value)+'" data-answer="'+esc(key(q))+'" '+(String(answers[key(q)]||'')===option.value?'checked':'')+'><span>'+esc(option.marker)+'</span></label>').join('')+'</div>';
+  }
+  function displayAnswer(q,value) {
+    const raw=String(value||'').trim();
+    if(!raw)return 'Chưa trả lời';
+    const options=choiceOptions(q);
+    return raw.split('|').map((part)=>{
+      const answer=part.trim(),match=options.find((option)=>clean(option.value)===clean(answer)||clean(option.marker)===clean(answer)||clean(option.label)===clean(answer));
+      return match?match.marker+'. '+match.label:answer;
+    }).join(' / ');
+  }
+  function paperQuestionHtml(q) {
+    const id=key(q),type=typeOf(q),choiceTypes=['mc','mcq','tfng','ynng'],isChoice=choiceTypes.includes(type);
+    let question=paperText(q.question);
+    if(!isChoice&&/_{3,}/.test(String(q.question||'')))question=question.replace(/_{3,}/,'<span class="paper-answer-fill" data-answer-fill="'+esc(id)+'">________</span>');
+    const options=isChoice?'<div class="paper-options">'+choiceOptions(q).map((option)=>'<div class="paper-choice" data-paper-choice-q="'+esc(id)+'" data-paper-choice-value="'+esc(option.value)+'"><b>'+esc(option.marker)+'.</b> '+paperText(option.label)+'</div>').join('')+'</div>':'';
+    const response=!isChoice&&!/_{3,}/.test(String(q.question||''))?'<div class="paper-write-line" data-answer-line="'+esc(id)+'"></div>':'';
+    return '<article class="paper-question" id="question-'+esc(id)+'" data-qcard="'+esc(id)+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+question+'</span></div>'+options+response+'</article>';
+  }
   function mediaHtml(q) {
     if (!q.mediaUrl || !/^https?:\/\//i.test(q.mediaUrl)) return '';
     if (/\.(mp3|m4a|ogg|wav)(?:$|[?#])/i.test(q.mediaUrl)) return '<audio controls preload="metadata" src="'+esc(q.mediaUrl)+'"></audio>';
@@ -118,13 +150,19 @@
     $('paper-body').innerHTML = groups.map((g) => {
       const sharedMedia = g.items.length > 1 && g.items[0].mediaUrl && g.items.every((q) => q.mediaUrl === g.items[0].mediaUrl);
       const sharedMediaHtml = sharedMedia ? mediaHtml(g.items[0]) : '';
-      return '<section class="paper-part"><h3>'+paperText(g.section)+(g.part?' <span>· '+paperText(g.part)+'</span>':'')+'</h3>'+(g.stimulus?'<div class="paper-stimulus">'+paperText(g.stimulus)+'</div>':'')+sharedMediaHtml+g.items.map((q)=>'<article class="paper-question" id="question-'+esc(key(q))+'" data-qcard="'+esc(key(q))+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+paperText(q.question)+'</span></div>'+(!sharedMedia?mediaHtml(q):'')+answerControl(q)+(q.explanation?'<div class="explanation"><b>Giải thích:</b> '+paperText(q.explanation)+'</div>':'')+'</article>').join('')+'</section>';
+      return '<section class="paper-part"><h3>'+paperText(g.section)+(g.part?' <span>· '+paperText(g.part)+'</span>':'')+'</h3>'+(g.stimulus?'<div class="paper-stimulus">'+paperText(g.stimulus)+'</div>':'')+sharedMediaHtml+g.items.map((q)=>paperQuestionHtml(q)+(!sharedMedia?mediaHtml(q):'')).join('')+'</section>';
     }).join('');
-    bindAnswerInput($('paper-body'));
+    $('answer-sheet-items').innerHTML=exam.questions.map((q)=>'<article class="answer-card"><div class="answer-card-head"><span>Câu '+qNumber(q)+'</span><span class="answer-card-status" data-answer-status="'+esc(key(q))+'">'+(String(answers[key(q)]||'').trim()?'Đã điền':'Chưa điền')+'</span></div>'+paperAnswerControl(q)+'</article>').join('');
+    bindAnswerInput($('answer-sheet-items'));
     renderPaperNav();
     $('submit').onclick = () => askFinish();
   }
   function renderPaperNav() {
+    refreshPaperMirror();
+    exam.questions.forEach((q)=>{
+      const status=document.querySelector('[data-answer-status="'+CSS.escape(key(q))+'"]');
+      if(status)status.textContent=String(answers[key(q)]||'').trim()?'Đã điền':'Chưa điền';
+    });
     const nav=$('paper-nav');
     if(nav){
       nav.innerHTML = exam.questions.map((q,i)=>'<button type="button" class="paper-nav-item '+(String(answers[key(q)]||'').trim()?'done':'')+'" data-jump="'+esc(key(q))+'" aria-label="Đến câu '+(i+1)+'">'+(i+1)+'</button>').join('');
@@ -135,6 +173,17 @@
     }
     const answered=exam.questions.filter(q=>String(answers[key(q)]||'').trim()).length;
     if($('answered'))$('answered').textContent=answered+' / '+exam.questions.length+' câu đã trả lời';
+  }
+  function refreshPaperMirror() {
+    if(mode!=='school'||!exam)return;
+    exam.questions.forEach((q)=>{
+      const id=key(q),value=String(answers[id]||'');
+      document.querySelectorAll('[data-paper-choice-q="'+CSS.escape(id)+'"]').forEach((option)=>option.classList.toggle('selected',option.dataset.paperChoiceValue===value));
+      const fill=document.querySelector('[data-answer-fill="'+CSS.escape(id)+'"]');
+      if(fill)fill.textContent=value||'________';
+      const line=document.querySelector('[data-answer-line="'+CSS.escape(id)+'"]');
+      if(line)line.textContent=value;
+    });
   }
   function renderIelts() {
     const sections=[...new Set(exam.questions.map(sectionName))];
@@ -150,7 +199,7 @@
     $('part-tabs').onclick=(event)=>{const b=event.target.closest('[data-part]');if(!b)return;selectedPart=b.dataset.part;current=exam.questions.findIndex(x=>sectionName(x)===selectedSection&&partName(x)===selectedPart);renderIelts()};
     $('stimulus-title').textContent=selectedSection+(q&&q.part?' · '+q.part:'');
     $('stimulus-content').innerHTML=(q&&q.stimulus?'<div class="passage">'+esc(q.stimulus)+'</div>':'<p class="empty-stimulus">Đề bài hoặc đoạn văn sẽ hiển thị ở đây.</p>')+(q?mediaHtml(q):'');
-    $('question-content').innerHTML=q?'<div class="q-kicker">Question '+(current+1)+' of '+exam.questions.length+'</div><h2>'+esc(q.question)+'</h2>'+answerControl(q)+(q.explanation?'<div class="explanation"><b>Giải thích:</b> '+esc(q.explanation)+'</div>':''):'';
+    $('question-content').innerHTML=q?'<div class="q-kicker">Question '+(current+1)+' of '+exam.questions.length+'</div><h2>'+esc(q.question)+'</h2>'+answerControl(q):'';
     bindAnswerInput($('question-content'));
     $('prev').disabled=current<=0;$('next').disabled=current>=exam.questions.length-1;
     $('prev').onclick=()=>{if(current>0){current--;selectedSection=sectionName(exam.questions[current]);selectedPart=partName(exam.questions[current]);renderIelts()}};
@@ -183,11 +232,14 @@
     if($('submit'))$('submit').disabled=true;
     if($('prev'))$('prev').disabled=true;
     if($('next'))$('next').disabled=true;
-    let score=0,total=0;const wrong=[],manualCount=exam.questions.filter(q=>!String(q.correctAnswer||'').trim()).length;
+    let score=0,total=0;const wrong=[],unkeyedCount=exam.questions.filter(q=>!String(q.correctAnswer||'').trim()).length;
     exam.questions.forEach(q=>{const result=isCorrect(q);if(result===null)return;total++;if(result)score++;else wrong.push(q)});
-    const review=wrong.length?'<h3>Câu cần xem lại</h3>'+wrong.map(q=>'<article class="review-item"><b>Câu '+qNumber(q)+': '+esc(q.question)+'</b><p>Đáp án: '+esc(q.correctAnswer)+'</p>'+(q.explanation?'<p>'+esc(q.explanation)+'</p>':'')+'</article>').join(''):'';
+    const answerKey=exam.questions.filter(q=>String(q.correctAnswer||'').trim());
+    const review=answerKey.length?'<details class="answer-review" open><summary>Đáp án và giải thích</summary>'+answerKey.map(q=>'<article class="review-item"><b>Câu '+qNumber(q)+': '+esc(q.question)+'</b><p>Đáp án đúng: '+esc(displayAnswer(q,q.correctAnswer))+'</p><p>Đáp án của bạn: '+esc(displayAnswer(q,answers[key(q)]))+'</p>'+(q.explanation?'<p class="explanation">'+paperText(q.explanation)+'</p>':'')+'</article>').join('')+'</details>':'';
     $('result').hidden=false;
-    $('result').innerHTML='<h2>Kết quả làm bài</h2><p class="result-score">'+(total?'Đúng '+score+'/'+total+' câu chấm tự động ('+Math.round(score/total*100)+'%)':'Đề này không có câu chấm tự động.')+'</p>'+(manualCount?'<p>'+manualCount+' câu viết hoặc câu tự luận đang chờ giáo viên chấm.'+(mode==='ielts'?' Hệ thống không tự quy đổi phần này thành band IELTS.':'')+'</p>':'')+review+'<div id="save-state"></div>';
+    const manualCount=exam.questions.filter(q=>['essay','writing','speaking','long_answer'].includes(typeOf(q))&&!String(q.correctAnswer||'').trim()).length;
+    $('result').innerHTML='<h2>Kết quả làm bài</h2><p class="result-score">'+(total?'Đúng '+score+'/'+total+' câu chấm tự động ('+Math.round(score/total*100)+'%)':'Đề này không có câu chấm tự động.')+'</p>'+(unkeyedCount?'<p>'+unkeyedCount+' câu chưa có đáp án chuẩn nên không được tính vào điểm tự động.</p>':'')+(manualCount?'<p>'+manualCount+' câu viết hoặc câu tự luận đang chờ giáo viên chấm.'+(mode==='ielts'?' Hệ thống không tự quy đổi phần này thành band IELTS.':'')+'</p>':'')+review+'<div id="save-state"></div>';
+    $('result').scrollIntoView({behavior:'smooth',block:'start'});
     let token='';try{token=localStorage.getItem('ef_token')||''}catch(_){}
     if(!token){$('save-state').innerHTML='Bạn chưa đăng nhập nên kết quả không được lưu. <a href="exercises.html">Đăng nhập Google ›</a>';return}
     const weak=[...new Set(wrong.map(q=>q.topic).filter(Boolean))].join(',');
