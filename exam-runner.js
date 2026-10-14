@@ -112,6 +112,21 @@
     const response=!isChoice&&!/_{3,}/.test(String(q.question||''))?'<div class="paper-write-line" data-answer-line="'+esc(id)+'"></div>':'';
     return '<article class="paper-question" id="question-'+esc(id)+'" data-qcard="'+esc(id)+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+question+'</span></div>'+options+response+'</article>';
   }
+  function paperStimulusHtml(value,section,part) {
+    const raw=String(value||'').replace(/\r\n?/g,'\n').trim(),label=[section,part].join(' ');
+    const markers=raw.match(/(?:^|\s)[a-d][.)]\s+(?=(?:[A-Z][A-Za-z'’ -]{1,24}:\s*)?[A-Z])/gi)||[];
+    const sentenceOrder=/sentence\s*(?:order|ordering)|reorder|sắp xếp/i.test(label)||(markers.length>=2&&/(?:^|\s)[a-d][.)]\s+[A-Z][A-Za-z'’ -]{1,24}:/.test(raw));
+    if(!sentenceOrder&&!/(communication|conversation|dialogue|hội thoại)/i.test(label))return paperText(raw);
+    const chunks=raw.split(sentenceOrder?/(?=\s*[a-d][.)]\s+(?=(?:[A-Z][A-Za-z'’ -]{1,24}:\s*)?[A-Z]))/gi:/(?=\s*[-–—]?\s*[A-Z][A-Za-z'’ -]{1,24}:\s+)/g).map((chunk)=>chunk.trim()).filter(Boolean);
+    if(chunks.length<2)return paperText(raw);
+    return chunks.map((chunk)=>{
+      const marker=chunk.match(/^([a-d])[.)]\s*/i);
+      if(marker)return '<div class="communication-line"><b>'+esc(marker[1].toLowerCase())+'.</b> '+paperText(chunk.slice(marker[0].length))+'</div>';
+      const speaker=chunk.match(/^[-–—]?\s*([A-Z][A-Za-z'’ -]{1,24}:)\s*/);
+      if(speaker)return '<div class="communication-line"><b>'+esc(speaker[1])+'</b> '+paperText(chunk.slice(speaker[0].length))+'</div>';
+      return '<div class="communication-line">'+paperText(chunk)+'</div>';
+    }).join('');
+  }
   function mediaHtml(q) {
     if (!q.mediaUrl || !/^https?:\/\//i.test(q.mediaUrl)) return '';
     if (/\.(mp3|m4a|ogg|wav)(?:$|[?#])/i.test(q.mediaUrl)) return '<audio controls preload="metadata" src="'+esc(q.mediaUrl)+'"></audio>';
@@ -122,6 +137,18 @@
       return '<audio controls preload="metadata" src="'+esc(audioUrl)+'"></audio>';
     }
     return '<a class="resource" href="'+esc(q.mediaUrl)+'" target="_blank" rel="noopener">Mở tài liệu đính kèm ↗</a>';
+  }
+  function paperMediaHtml(q) {
+    const html=mediaHtml(q);
+    return /^<img\b/i.test(html)?html:'';
+  }
+  function answerSideMediaHtml(q,seen) {
+    const html=mediaHtml(q);
+    if(!/^<audio\b|^<a\b/i.test(html))return '';
+    const signature=[sectionName(q),partName(q),String(q.mediaUrl||'')].join('\u0000');
+    if(seen.has(signature))return '';
+    seen.add(signature);
+    return '<div class="answer-media">'+html+'</div>';
   }
   function bindAnswerInput(root) {
     root.oninput = root.onchange = (event) => {
@@ -149,10 +176,11 @@
     $('paper-info').innerHTML = '<span>'+esc(exam.group)+'</span><span>Thời gian làm bài: '+(exam.duration||45)+' phút</span><span>Mã đề: '+esc(exam.id)+'</span><span>Số câu: '+exam.questions.length+'</span>';
     $('paper-body').innerHTML = groups.map((g) => {
       const sharedMedia = g.items.length > 1 && g.items[0].mediaUrl && g.items.every((q) => q.mediaUrl === g.items[0].mediaUrl);
-      const sharedMediaHtml = sharedMedia ? mediaHtml(g.items[0]) : '';
-      return '<section class="paper-part"><h3>'+paperText(g.section)+(g.part?' <span>· '+paperText(g.part)+'</span>':'')+'</h3>'+(g.stimulus?'<div class="paper-stimulus">'+paperText(g.stimulus)+'</div>':'')+sharedMediaHtml+g.items.map((q)=>paperQuestionHtml(q)+(!sharedMedia?mediaHtml(q):'')).join('')+'</section>';
+      const sharedMediaHtml = sharedMedia ? paperMediaHtml(g.items[0]) : '';
+      return '<section class="paper-part"><h3>'+paperText(g.section)+(g.part?' <span>· '+paperText(g.part)+'</span>':'')+'</h3>'+(g.stimulus?'<div class="paper-stimulus">'+paperStimulusHtml(g.stimulus,g.section,g.part)+'</div>':'')+sharedMediaHtml+g.items.map((q)=>paperQuestionHtml(q)+(!sharedMedia?paperMediaHtml(q):'')).join('')+'</section>';
     }).join('');
-    $('answer-sheet-items').innerHTML=exam.questions.map((q)=>'<article class="answer-card"><div class="answer-card-head"><span>Câu '+qNumber(q)+'</span><span class="answer-card-status" data-answer-status="'+esc(key(q))+'">'+(String(answers[key(q)]||'').trim()?'Đã điền':'Chưa điền')+'</span></div>'+paperAnswerControl(q)+'</article>').join('');
+    const seenMedia=new Set();
+    $('answer-sheet-items').innerHTML=exam.questions.map((q)=>'<article class="answer-card">'+answerSideMediaHtml(q,seenMedia)+'<div class="answer-card-head"><span>Câu '+qNumber(q)+'</span><span class="answer-card-status" data-answer-status="'+esc(key(q))+'">'+(String(answers[key(q)]||'').trim()?'Đã điền':'Chưa điền')+'</span></div>'+paperAnswerControl(q)+'</article>').join('');
     bindAnswerInput($('answer-sheet-items'));
     renderPaperNav();
     $('submit').onclick = () => askFinish();
