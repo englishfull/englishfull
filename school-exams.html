@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="favicon.svg"><title>Đề thi THCS & THPT – EnglishFull</title>
+  <style>
+    :root{--navy:#102b50;--blue:#1d4f91;--accent:#e99025;--bg:#f1f4f8;--ink:#1b2736;--muted:#64748b;--line:#d9e1eb;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,sans-serif}.head{background:var(--navy);color:white;padding:14px 20px}.headin{max-width:1120px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:14px}.head a{color:#e6efff;text-decoration:none}.wrap{max-width:1120px;margin:32px auto;padding:0 16px}.hero{background:#fff;border:1px solid var(--line);border-radius:16px;padding:25px}.eyebrow{color:var(--blue);font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:.06em}.hero h1{margin:5px 0;color:var(--navy);font-size:clamp(1.55rem,3vw,2.1rem)}.hero p{margin:0;color:var(--muted)}.filters{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:18px 0}.filters label{display:grid;gap:5px;color:var(--muted);font-size:.88rem;font-weight:700}.filters select,.filters input{min-width:180px;border:1px solid #cbd6e4;border-radius:9px;background:#fff;padding:10px 12px;font:inherit;color:var(--ink)}.filters input{min-width:min(280px,80vw)}.count{color:var(--muted);font-size:.9rem;margin:0 0 10px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px}.card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:12px;padding:18px;display:flex;flex-direction:column;min-height:180px;gap:8px;text-decoration:none;color:inherit;box-shadow:0 5px 16px #0b25400d}.card:hover{border-color:#8ea9c8;transform:translateY(-2px)}.tag{color:var(--blue);font-weight:700;font-size:.84rem}.card h2{margin:0;color:var(--navy);font-size:1.15rem}.card p{margin:0;color:var(--muted);flex:1}.meta{color:var(--muted);font-size:.9rem}.go{color:var(--blue);font-weight:700}.state{background:#fff;border:1px solid var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted)}footer{text-align:center;color:var(--muted);padding:28px}@media(max-width:600px){.headin{align-items:flex-start;flex-direction:column}.filters label,.filters select,.filters input{width:100%}}
+  </style>
+</head>
+<body>
+  <header class="head"><div class="headin"><a href="index.html"><b>EnglishFull</b> · Kho đề trường</a><nav><a href="exercises.html">Bài tập</a>　<a href="history.html">Lịch sử</a></nav></div></header>
+  <main class="wrap">
+    <section class="hero"><div class="eyebrow">Luyện tập theo đề kiểm tra</div><h1>Đề thi THCS & THPT</h1><p>Lọc theo cấp lớp và kỳ kiểm tra. Bài làm trình bày liên tục theo hình thức đề trên giấy.</p></section>
+    <div id="filters" class="filters"></div><p id="count" class="count"></p>
+    <div id="list"><div class="state">Đang tải danh sách đề…</div></div>
+  </main>
+  <footer>Chọn đề để xem toàn bộ câu hỏi và làm bài trong thời gian quy định.</footer>
+  <script>
+    const BASE='https://script.google.com/macros/s/AKfycbwtDxkcEL5lDNPBt0gxe0P59rb2HZacd9z6CVXbHWYlA17s2w2hRcD7UyRVx7PZ1IJn/exec';
+    let exams=[],level='',kind='',search='';const $=id=>document.getElementById(id);
+    function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function norm(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')}
+    function parts(x){return String(x.group||'Khác').split(/\s*[·|]\s*/).map(v=>v.trim()).filter(Boolean)}
+    function levelOf(x){const p=parts(x),s=p.find(v=>/^THCS$|^THPT$/i.test(v)),g=p.find(v=>/^Lớp\s+\d+/i.test(v));return [s,g].filter(Boolean).join(' · ')||'Khác'}
+    function kindOf(x){return parts(x).filter(v=>!/^THCS$|^THPT$/i.test(v)&&!/^Lớp\s+\d+/i.test(v)).join(' · ')||'Khác'}
+    function select(id,label,vals){return '<label>'+label+'<select id="'+id+'"><option value="">Tất cả</option>'+vals.map(v=>'<option>'+esc(v)+'</option>').join('')+'</select></label>'}
+    function draw(){
+      const shown=exams.filter(x=>(!level||levelOf(x)===level)&&(!kind||kindOf(x)===kind)&&(!search||norm([x.title,x.desc,x.group].join(' ')).includes(norm(search))));
+      $('count').textContent=shown.length+' đề';
+      $('list').innerHTML=shown.length?'<div class="grid">'+shown.map(x=>'<a class="card" href="school-session.html?id='+encodeURIComponent(x.id)+'"><span class="tag">'+esc(x.group)+'</span><h2>'+esc(x.title)+'</h2><p>'+esc(x.desc)+'</p><span class="meta">'+(x.duration||'—')+' phút</span><span class="go">Mở đề thi ›</span></a>').join('')+'</div>':'<div class="state">Không có đề phù hợp. Hãy đổi bộ lọc hoặc thử từ khóa khác.</div>';
+    }
+    function setup(){
+      const levels=[...new Set(exams.map(levelOf))].sort((a,b)=>a.localeCompare(b,'vi'));
+      const kinds=[...new Set(exams.map(kindOf))].sort((a,b)=>a.localeCompare(b,'vi'));
+      $('filters').innerHTML=select('level','Cấp / lớp',levels)+select('kind','Kỳ / dạng đề',kinds)+'<label for="search">Tìm đề<input id="search" type="search" placeholder="Ví dụ: lớp 9, cuối kì II"></label>';
+      $('level').onchange=()=>{level=$('level').value;draw()};$('kind').onchange=()=>{kind=$('kind').value;draw()};$('search').oninput=()=>{search=$('search').value;draw()};
+    }
+    fetch(BASE+'?api=exam_list&track=school').then(r=>r.json()).then(r=>{if(!r.success)throw Error(r.message||'Không tải được danh sách');exams=r.data||[];setup();draw()}).catch(e=>{$('count').textContent='';$('list').innerHTML='<div class="state">'+esc(e.message)+'</div>'});
+  </script>
+</body>
+</html>
