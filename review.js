@@ -157,7 +157,14 @@
     var detail = fetch(o.base, { method: 'POST', body: JSON.stringify({ action: 'attemptDetail', token: o.token, row: o.row, id: o.testId }) })
       .then(function (r) { return r.json(); });
     var quiz = fetch(o.base + '?api=quiz&id=' + encodeURIComponent(o.testId))
-      .then(function (r) { return r.json(); });
+      .then(function (r) { return r.json(); })
+      .then(function (q) {
+        if (q && q.success) return q;
+        return fetch(o.base + '?api=exam&id=' + encodeURIComponent(o.testId)).then(function (r) { return r.json(); }).then(function (x) {
+          if (!x || !x.success || !x.exam) return q;
+          return { success: true, data: x.exam.questions || [] };
+        });
+      });
     Promise.all([detail, quiz]).then(function (res) { render(res[0], res[1]); })
       .catch(function () { setBody('<div class="efrv-state">Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.</div>'); });
   }

@@ -96,7 +96,7 @@
   var TOK = '', USER = null, NAMES = {};
 
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-  function pct(a){return a.total ? Math.round(a.score / a.total * 100) : 0}
+  function pct(a){return a.total ? Math.round(a.score / a.total * 100) : null}
   function col(p){return p >= 80 ? '#16a34a' : (p >= 50 ? '#f59e0b' : '#dc2626')}
   function nm(id){return NAMES[id] || id}
   function fmtDur(s){
@@ -134,8 +134,11 @@
     document.getElementById('out').style.display = '';
 
     var stats = fetch(BASE + '?api=stats&token=' + encodeURIComponent(TOK)).then(function(r){return r.json()});
-    var topics = fetch(BASE + '?api=topics').then(function(r){return r.json()})
-      .then(function(r){return (r && r.success) ? r.data : []}).catch(function(){return []});
+    var topics = Promise.all([
+      fetch(BASE + '?api=topics').then(function(r){return r.json()}).then(function(r){return (r && r.success) ? r.data : []}).catch(function(){return []}),
+      fetch(BASE + '?api=exam_list&track=school').then(function(r){return r.json()}).then(function(r){return (r && r.success) ? r.data : []}).catch(function(){return []}),
+      fetch(BASE + '?api=exam_list&track=ielts').then(function(r){return r.json()}).then(function(r){return (r && r.success) ? r.data : []}).catch(function(){return []})
+    ]).then(function(a){return [].concat.apply([],a)});
 
     Promise.all([stats, topics]).then(function(res){
       var d = res[0], list = res[1].length ? res[1] : topicsFromCache();
@@ -146,13 +149,14 @@
         }
         return fail();
       }
-      list.forEach(function(t){NAMES[t.id || t.name] = t.name});
+      list.forEach(function(t){NAMES[t.id || t.name] = t.name || t.title});
       render(d.attempts || []);
     }).catch(fail);
   }
 
   function chart(att){
-    var pts = att.slice(-30), n = pts.length;
+    var pts = att.filter(function(a){return a.total > 0}).slice(-30), n = pts.length;
+    if (!n) return '<p class="muted">Chưa có phần chấm tự động để vẽ biểu đồ.</p>'; 
     var W = 640, H = 220, L = 36, R = 14, T = 12, B = 26, iw = W - L - R, ih = H - T - B;
     var s = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Biểu đồ điểm theo thời gian">';
     [0, 50, 100].forEach(function(v){
@@ -173,7 +177,7 @@
 
   var ATT = [];
   function wrongOf(a){
-    if (String(a.id).indexOf('Chép chính tả') === 0 || a.wrong == null || !a.row) return null;
+    if (!a.total || String(a.id).indexOf('Chép chính tả') === 0 || a.wrong == null || !a.row) return null;
     if (a.score >= a.total) return [];
     var w = String(a.wrong).trim();
     if (!w || /^không có/i.test(w)) return [];
@@ -186,32 +190,31 @@
     att.sort(function(a, b){return new Date(a.t) - new Date(b.t)});
     ATT = att;
 
-    var sum = 0, best = 0, time = 0, by = {}, weak = {};
+    var sum = 0, scored = 0, best = 0, time = 0, by = {}, weak = {};
     att.forEach(function(a){
-      var p = pct(a); sum += p; time += a.dur || 0; if (p > best) best = p;
-      var o = by[a.id] || (by[a.id] = {id: a.id, n: 0, best: 0, sum: 0, last: a.t, lastP: 0});
-      o.n++; o.sum += p; if (p > o.best) o.best = p; o.last = a.t; o.lastP = p;
-      String(a.weak || '').split(',').forEach(function(w){
-        w = w.trim(); if (w) weak[w] = (weak[w] || 0) + 1;
-      });
+      var p = pct(a); time += a.dur || 0;
+      var o = by[a.id] || (by[a.id] = {id: a.id, n: 0, scored: 0, best: 0, sum: 0, last: a.t});
+      o.n++; o.last = a.t;
+      if (p !== null) { sum += p; scored++; if (p > best) best = p; o.sum += p; o.scored++; if (p > o.best) o.best = p; }
+      String(a.weak || '').split(',').forEach(function(w){ w = w.trim(); if (w) weak[w] = (weak[w] || 0) + 1; });
     });
 
     var h = '<div class="cards">' +
       '<div class="sc"><b>' + att.length + '</b><span>Lần làm bài</span></div>' +
-      '<div class="sc"><b>' + Math.round(sum / att.length) + '%</b><span>Điểm trung bình</span></div>' +
-      '<div class="sc"><b>' + best + '%</b><span>Điểm cao nhất</span></div>' +
+      '<div class="sc"><b>' + (scored ? Math.round(sum / scored) + '%' : '—') + '</b><span>Điểm TB phần tự động</span></div>' +
+      '<div class="sc"><b>' + (scored ? best + '%' : '—') + '</b><span>Điểm tự động cao nhất</span></div>' +
       '<div class="sc"><b>' + fmtDur(time) + '</b><span>Tổng thời gian</span></div></div>';
 
     h += '<section class="panel"><h2>Tiến bộ theo thời gian</h2>' + chart(att) +
-         '<div class="muted" style="font-size:.85rem">' + Math.min(att.length, 30) + ' lần làm gần nhất. Di chuột vào từng chấm để xem chi tiết.</div></section>';
+         '<div class="muted" style="font-size:.85rem">Biểu đồ chỉ tính các câu có đáp án chuẩn; Writing/Speaking và câu chờ chấm không làm giảm điểm.</div></section>';
 
     var rows = Object.keys(by).map(function(k){return by[k]}).sort(function(a, b){return new Date(b.last) - new Date(a.last)});
     h += '<section class="panel"><h2>Theo chuyên đề</h2><div class="scroll"><table><thead><tr><th>Chuyên đề</th><th>Lần</th><th>Cao nhất</th><th>Trung bình</th><th>Gần nhất</th></tr></thead><tbody>';
     rows.forEach(function(o){
-      var avg = Math.round(o.sum / o.n);
+      var avg = o.scored ? Math.round(o.sum / o.scored) : 0;
       h += '<tr><td class="n">' + esc(nm(o.id)) + '</td><td>' + o.n + '</td>' +
-           '<td><span class="pill" style="background:' + col(o.best) + '">' + o.best + '%</span></td>' +
-           '<td><div class="bar"><b style="width:' + avg + '%;background:' + col(avg) + '"></b></div><small class="muted">' + avg + '%</small></td>' +
+           '<td>' + (o.scored ? '<span class="pill" style="background:' + col(o.best) + '">' + o.best + '%</span>' : '<span class="muted">Chờ chấm</span>') + '</td>' +
+           '<td>' + (o.scored ? '<div class="bar"><b style="width:' + avg + '%;background:' + col(avg) + '"></b></div><small class="muted">' + avg + '%</small>' : '<span class="muted">—</span>') + '</td>' +
            '<td class="muted">' + esc(fmtDate(o.last)) + '</td></tr>';
     });
     h += '</tbody></table></div></section>';
@@ -226,15 +229,15 @@
       h += '</section>';
     }
 
-    h += '<section class="panel"><h2>Các lần làm gần đây</h2><p class="muted" style="margin-top:-6px">Bấm “Xem câu sai” để xem lại các câu bạn đã làm sai.</p><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm</th><th>Thời lượng</th><th>Câu sai</th></tr></thead><tbody>';
+    h += '<section class="panel"><h2>Các lần làm gần đây</h2><p class="muted" style="margin-top:-6px">Điểm chỉ tính phần có đáp án chuẩn. Bấm “Xem câu sai” để xem lại các câu đã chấm sai.</p><div class="scroll"><table><thead><tr><th>Thời gian</th><th>Chuyên đề</th><th>Điểm phần tự động</th><th>Tự luận</th><th>Thời lượng</th><th>Câu sai</th></tr></thead><tbody>';
     for (var i = att.length - 1; i >= Math.max(0, att.length - 30); i--) {
       var a = att[i], p = pct(a), w = wrongOf(a), cell;
       if (w === null) cell = '<span class="muted">–</span>';
       else if (!w.length) cell = '<span class="muted">Không sai câu nào</span>';
       else cell = '<button type="button" class="lnk" data-k="' + i + '">Xem ' + w.length + ' câu sai ›</button>';
       h += '<tr><td class="muted">' + esc(fmtDate(a.t)) + '</td><td class="n">' + esc(nm(a.id)) + '</td>' +
-           '<td><span class="pill" style="background:' + col(p) + '">' + a.score + '/' + a.total + ' · ' + p + '%</span></td>' +
-           '<td>' + fmtDur(a.dur) + '</td><td>' + cell + '</td></tr>';
+           '<td>' + (p === null ? '<span class="muted">Chờ chấm</span>' : '<span class="pill" style="background:' + col(p) + '">' + a.score + '/' + a.total + ' · ' + p + '%</span>') + '</td>' +
+           '<td>' + (a.manualPending ? '<span class="muted">Chờ chấm</span>' : '—') + '</td><td>' + fmtDur(a.dur) + '</td><td>' + cell + '</td></tr>';
     }
     h += '</tbody></table></div></section>';
     show(h);
