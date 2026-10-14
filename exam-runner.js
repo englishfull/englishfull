@@ -11,7 +11,8 @@
   let started = false, submitted = false, selectedSection = '', selectedPart = '';
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const key = (q) => String(q.id);
-  const typeOf = (q) => String(q.type || 'mc').toLowerCase();
+  const typeOf = (q) => String(q.type || 'mc').toLowerCase().replace(/[\s-]+/g, '_');
+  const paperText = (value) => esc(value).replace(/\[\[([\s\S]*?)\]\]/g, '<u>$1</u>');
   const clean = (value) => String(value || '').trim().toLowerCase().replace(/[.,'’]/g, '').replace(/\s+/g, ' ');
   const formatTime = (value) => String(Math.floor(value / 60)).padStart(2, '0') + ':' + String(value % 60).padStart(2, '0');
   const sectionName = (q) => String(q.section || 'Phần 1');
@@ -64,24 +65,30 @@
   function answerControl(q) {
     const value = answers[key(q)] == null ? '' : String(answers[key(q)]);
     const type = typeOf(q);
-    if (['mc','tfng','ynng'].includes(type)) {
+    if (['mc','mcq','tfng','ynng'].includes(type)) {
       const options = Array.isArray(q.options) && q.options.length ? q.options : (type === 'tfng' ? ['True','False','Not Given'] : type === 'ynng' ? ['Yes','No','Not Given'] : []);
       return '<div class="choices">' + options.map((option) => {
         const match = String(option).match(/^([A-D])\s*[.)]/i);
         const choice = match ? match[1].toUpperCase() : String(option).trim();
         const label = String(option).replace(/^[A-D]\s*[.)]\s*/i, '');
-        return '<label class="choice"><input type="radio" name="answer-'+esc(key(q))+'" value="'+esc(choice)+'" data-answer="'+esc(key(q))+'" '+(value===choice?'checked':'')+'><span>'+esc(label)+'</span></label>';
+        return '<label class="choice"><input type="radio" name="answer-'+esc(key(q))+'" value="'+esc(choice)+'" data-answer="'+esc(key(q))+'" '+(value===choice?'checked':'')+'><span>'+(mode==='school'?paperText(label):esc(label))+'</span></label>';
       }).join('') + '</div>';
     }
-    if (['essay','writing','speaking'].includes(type)) {
+    if (['essay','writing','speaking','long_answer'].includes(type)) {
       return '<textarea class="long-answer" data-answer="'+esc(key(q))+'" placeholder="Nhập câu trả lời…">'+esc(value)+'</textarea><div class="word-count" data-count="'+esc(key(q))+'">'+(value.trim().match(/\S+/g)||[]).length+' từ</div>';
     }
-    return '<input class="short-answer" type="text" data-answer="'+esc(key(q))+'" value="'+esc(value)+'" autocomplete="off" placeholder="Nhập câu trả lời">';
+    const placeholders={short:'Nhập từ hoặc cụm từ còn thiếu…',fill:'Nhập từ hoặc cụm từ còn thiếu…',fill_in:'Nhập từ hoặc cụm từ còn thiếu…',fill_blank:'Nhập từ hoặc cụm từ còn thiếu…',fillblank:'Nhập từ hoặc cụm từ còn thiếu…',short_answer:'Nhập câu trả lời ngắn…',rewrite:'Viết lại câu hoàn chỉnh…',rewrite_sentence:'Viết lại câu hoàn chỉnh…',arrange:'Sắp xếp các từ thành câu hoàn chỉnh…',reorder:'Sắp xếp các từ thành câu hoàn chỉnh…',word_order:'Sắp xếp các từ thành câu hoàn chỉnh…',sentence_order:'Sắp xếp các từ thành câu hoàn chỉnh…',complete:'Viết câu hoàn chỉnh…',complete_sentence:'Viết câu hoàn chỉnh…',sentence_completion:'Viết câu hoàn chỉnh…'};
+    return '<input class="short-answer" type="text" data-answer="'+esc(key(q))+'" value="'+esc(value)+'" autocomplete="off" placeholder="'+esc(placeholders[type]||'Nhập câu trả lời…')+'">';
   }
   function mediaHtml(q) {
     if (!q.mediaUrl || !/^https?:\/\//i.test(q.mediaUrl)) return '';
     if (/\.(mp3|m4a|ogg|wav)(?:$|[?#])/i.test(q.mediaUrl)) return '<audio controls preload="metadata" src="'+esc(q.mediaUrl)+'"></audio>';
     if (/\.(png|jpe?g|gif|webp|svg)(?:$|[?#])/i.test(q.mediaUrl)) return '<img class="exam-image" src="'+esc(q.mediaUrl)+'" alt="Hình ảnh trong đề" loading="lazy">';
+    if (mode === 'school' && /listening/i.test(String(q.section||''))) {
+      const driveId=String(q.mediaUrl).match(/(?:\/d\/|[?&]id=)([-\w]+)/);
+      const audioUrl=driveId?'https://drive.google.com/uc?export=download&id='+driveId[1]:q.mediaUrl;
+      return '<audio controls preload="metadata" src="'+esc(audioUrl)+'"></audio>';
+    }
     return '<a class="resource" href="'+esc(q.mediaUrl)+'" target="_blank" rel="noopener">Mở tài liệu đính kèm ↗</a>';
   }
   function bindAnswerInput(root) {
@@ -107,20 +114,27 @@
       group.items.push(q);
     });
     $('paper-title').textContent = exam.title;
-    $('paper-info').innerHTML = '<span>'+esc(exam.group)+'</span><span>Thời gian làm bài: '+(exam.duration||45)+' phút</span><span>Số câu: '+exam.questions.length+'</span>';
-    $('paper-body').innerHTML = groups.map((g) => '<section class="paper-part"><h2>'+esc(g.section)+(g.part?' <span>· '+esc(g.part)+'</span>':'')+'</h2>'+(g.stimulus?'<div class="paper-stimulus">'+esc(g.stimulus)+'</div>':'')+g.items.map((q)=>'<article class="paper-question" id="question-'+esc(key(q))+'" data-qcard="'+esc(key(q))+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+esc(q.question)+'</span></div>'+mediaHtml(q)+answerControl(q)+(q.explanation?'<div class="explanation"><b>Giải thích:</b> '+esc(q.explanation)+'</div>':'')+'</article>').join('')+'</section>').join('');
+    $('paper-info').innerHTML = '<span>'+esc(exam.group)+'</span><span>Thời gian làm bài: '+(exam.duration||45)+' phút</span><span>Mã đề: '+esc(exam.id)+'</span><span>Số câu: '+exam.questions.length+'</span>';
+    $('paper-body').innerHTML = groups.map((g) => {
+      const sharedMedia = g.items.length > 1 && g.items[0].mediaUrl && g.items.every((q) => q.mediaUrl === g.items[0].mediaUrl);
+      const sharedMediaHtml = sharedMedia ? mediaHtml(g.items[0]) : '';
+      return '<section class="paper-part"><h3>'+paperText(g.section)+(g.part?' <span>· '+paperText(g.part)+'</span>':'')+'</h3>'+(g.stimulus?'<div class="paper-stimulus">'+paperText(g.stimulus)+'</div>':'')+sharedMediaHtml+g.items.map((q)=>'<article class="paper-question" id="question-'+esc(key(q))+'" data-qcard="'+esc(key(q))+'"><div class="question-title"><b>Câu '+qNumber(q)+'.</b> <span>'+paperText(q.question)+'</span></div>'+(!sharedMedia?mediaHtml(q):'')+answerControl(q)+(q.explanation?'<div class="explanation"><b>Giải thích:</b> '+paperText(q.explanation)+'</div>':'')+'</article>').join('')+'</section>';
+    }).join('');
     bindAnswerInput($('paper-body'));
     renderPaperNav();
     $('submit').onclick = () => askFinish();
   }
   function renderPaperNav() {
-    $('paper-nav').innerHTML = exam.questions.map((q,i)=>'<button type="button" class="paper-nav-item '+(String(answers[key(q)]||'').trim()?'done':'')+'" data-jump="'+esc(key(q))+'" aria-label="Đến câu '+(i+1)+'">'+(i+1)+'</button>').join('');
-    $('paper-nav').onclick = (event) => {
-      const button=event.target.closest('[data-jump]');if(!button)return;
-      const target=document.getElementById('question-'+button.dataset.jump);if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
-    };
+    const nav=$('paper-nav');
+    if(nav){
+      nav.innerHTML = exam.questions.map((q,i)=>'<button type="button" class="paper-nav-item '+(String(answers[key(q)]||'').trim()?'done':'')+'" data-jump="'+esc(key(q))+'" aria-label="Đến câu '+(i+1)+'">'+(i+1)+'</button>').join('');
+      nav.onclick = (event) => {
+        const button=event.target.closest('[data-jump]');if(!button)return;
+        const target=document.getElementById('question-'+button.dataset.jump);if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
+      };
+    }
     const answered=exam.questions.filter(q=>String(answers[key(q)]||'').trim()).length;
-    $('answered').textContent=answered+' / '+exam.questions.length+' câu đã trả lời';
+    if($('answered'))$('answered').textContent=answered+' / '+exam.questions.length+' câu đã trả lời';
   }
   function renderIelts() {
     const sections=[...new Set(exam.questions.map(sectionName))];
@@ -166,12 +180,14 @@
     remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
     started=false;submitted=true;clearInterval(timer);clearDraft();$('clock').textContent=formatTime(remaining);
     document.querySelectorAll('#stage input,#stage textarea,#stage button').forEach(el=>{if(el.id!=='submit'&&el.id!=='prev'&&el.id!=='next')el.disabled=true});
-    $('submit').disabled=true;$('prev').disabled=true;$('next').disabled=true;
+    if($('submit'))$('submit').disabled=true;
+    if($('prev'))$('prev').disabled=true;
+    if($('next'))$('next').disabled=true;
     let score=0,total=0;const wrong=[],manualCount=exam.questions.filter(q=>!String(q.correctAnswer||'').trim()).length;
     exam.questions.forEach(q=>{const result=isCorrect(q);if(result===null)return;total++;if(result)score++;else wrong.push(q)});
     const review=wrong.length?'<h3>Câu cần xem lại</h3>'+wrong.map(q=>'<article class="review-item"><b>Câu '+qNumber(q)+': '+esc(q.question)+'</b><p>Đáp án: '+esc(q.correctAnswer)+'</p>'+(q.explanation?'<p>'+esc(q.explanation)+'</p>':'')+'</article>').join(''):'';
     $('result').hidden=false;
-    $('result').innerHTML='<h2>Kết quả làm bài</h2><p class="result-score">'+(total?'Đúng '+score+'/'+total+' câu chấm tự động ('+Math.round(score/total*100)+'%)':'Đề này không có câu chấm tự động.')+'</p>'+(manualCount?'<p>'+manualCount+' câu tự luận/thực hành đang chờ giáo viên chấm. Hệ thống không tự quy đổi phần này thành band IELTS.</p>':'')+review+'<div id="save-state"></div>';
+    $('result').innerHTML='<h2>Kết quả làm bài</h2><p class="result-score">'+(total?'Đúng '+score+'/'+total+' câu chấm tự động ('+Math.round(score/total*100)+'%)':'Đề này không có câu chấm tự động.')+'</p>'+(manualCount?'<p>'+manualCount+' câu viết hoặc câu tự luận đang chờ giáo viên chấm.'+(mode==='ielts'?' Hệ thống không tự quy đổi phần này thành band IELTS.':'')+'</p>':'')+review+'<div id="save-state"></div>';
     let token='';try{token=localStorage.getItem('ef_token')||''}catch(_){}
     if(!token){$('save-state').innerHTML='Bạn chưa đăng nhập nên kết quả không được lưu. <a href="exercises.html">Đăng nhập Google ›</a>';return}
     const weak=[...new Set(wrong.map(q=>q.topic).filter(Boolean))].join(',');

@@ -1,16 +1,120 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.svg"><title>Làm đề trường – EnglishFull</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Làm đề THCS &amp; THPT – EnglishFull</title>
   <style>
-    :root{--navy:#173451;--blue:#245a91;--bg:#edf1f5;--ink:#18212b;--muted:#697786;--line:#cfd7df;--accent:#e7a13a;--green:#168253}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,"Times New Roman",serif}.toolbar{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;padding:10px 18px;font:14px Arial,sans-serif}.toolbar-inner{max-width:1200px;margin:auto;display:flex;align-items:center;gap:16px}.toolbar a{color:#e7f0fb;text-decoration:none}.toolbar-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.clock{font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums;background:#fff;color:var(--navy);padding:6px 12px;border-radius:8px}.wrap{max-width:1200px;margin:25px auto;padding:0 14px}.intro,.paper,.answer-card,.result{background:#fff;border:1px solid var(--line);border-radius:7px;box-shadow:0 5px 20px #23384c0c}.intro{max-width:850px;margin:50px auto;padding:30px}.intro h1{margin:6px 0;color:var(--navy)}.muted{color:var(--muted)}.badge{display:inline-block;margin:3px 6px 3px 0;padding:5px 10px;border:1px solid var(--line);border-radius:30px;color:var(--muted);font-size:.9rem}.button{border:0;border-radius:7px;background:var(--blue);color:#fff;padding:11px 18px;font:700 1rem Arial,sans-serif;cursor:pointer}.button.secondary{background:#e6edf5;color:var(--navy)}.work-grid{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:start}.paper{max-width:880px;margin:0 auto;padding:clamp(20px,4vw,48px);background:#fff}.paper-head{text-align:center;border-bottom:1px solid #aeb8c2;padding-bottom:20px;margin-bottom:24px}.paper-head h1{font-size:1.35rem;text-transform:uppercase;letter-spacing:.025em;margin:8px auto}.paper-head .school-line{font-size:.9rem;text-transform:uppercase}.paper-head p{margin:4px}.paper-info{display:flex;justify-content:center;gap:12px 24px;flex-wrap:wrap;margin-top:12px;font-size:.94rem}.candidate-line{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:14px;margin-top:15px;text-align:left}.candidate-line span{border-bottom:1px dotted #707b86;padding-bottom:3px}.paper-part{margin:25px 0}.paper-part h2{font-size:1.04rem;text-transform:uppercase;margin:0 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line)}.paper-part h2 span{font-weight:400;text-transform:none}.paper-stimulus{white-space:pre-wrap;margin:12px 0 18px;padding:14px 16px;background:#fafbfd;border-left:3px solid #9aaabd}.paper-question{padding:12px 0 17px;border-bottom:1px dotted #d8dee5;scroll-margin-top:86px}.question-title{display:flex;align-items:flex-start;gap:7px}.question-title b{white-space:nowrap}.choices{display:grid;gap:6px;margin:9px 0 0 24px}.choice{display:flex;align-items:flex-start;gap:9px;padding:6px 8px;border-radius:5px;cursor:pointer}.choice:hover{background:#f4f7fa}.choice input{margin-top:5px;accent-color:var(--blue)}.short-answer,.long-answer{display:block;width:100%;max-width:640px;margin:10px 0 0;padding:10px 12px;border:1px solid #abb8c5;border-radius:4px;font:inherit}.long-answer{min-height:130px;max-width:none;resize:vertical}.word-count{font:12px Arial,sans-serif;color:var(--muted);text-align:right}.paper audio{display:block;width:min(100%,500px);margin:12px 0}.exam-image{display:block;max-width:min(100%,720px);max-height:520px;object-fit:contain;margin:12px 0}.resource{display:inline-block;margin:8px 0;color:var(--blue)}.side{position:sticky;top:68px}.answer-card{padding:16px}.answer-card h2{font:700 1rem Arial,sans-serif;color:var(--navy);margin:0 0 6px}.answer-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}.paper-nav-item{min-height:36px;border:1px solid #cbd4de;border-radius:5px;background:#fff;color:var(--ink);cursor:pointer}.paper-nav-item.done{background:#e6f3ed;border-color:#8bc5a6}.submit-row{max-width:880px;margin:14px auto;display:flex;justify-content:flex-end;gap:10px}.result{max-width:880px;margin:18px auto;padding:22px}.result h2{margin-top:0;color:var(--navy)}.review-item{padding:12px;margin:10px 0;background:#f7f9fb;border-left:3px solid #d28b27}.explanation{margin-top:8px;color:var(--muted);font-size:.92rem}.saved{color:var(--green);font-weight:700}.loading{color:var(--muted)}[hidden]{display:none!important}@media(max-width:800px){.work-grid{grid-template-columns:1fr}.side{position:static;order:-1}.answer-nav{grid-template-columns:repeat(10,1fr)}.intro{margin:22px auto;padding:22px}.paper{padding:20px}.candidate-line{grid-template-columns:1fr}.toolbar-inner{gap:9px}}@media print{body{background:white}.toolbar,.side,.submit-row,.intro{display:none!important}.wrap{margin:0;padding:0}.paper{box-shadow:none;border:0;max-width:none}.paper-question{break-inside:avoid}}
+    :root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--n6:#164192;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:82px}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 'Times New Roman',Times,serif;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+    .site-header{position:sticky;top:0;z-index:20;background:rgba(6,23,51,.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1);color:#fff}
+    .hd-in{max-width:1120px;min-height:64px;margin:auto;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .logo{display:flex;align-items:center;gap:10px;color:#fff;flex:none}
+    .logo svg{width:42px;height:42px}
+    .logo b{display:block;font-size:1.2rem;line-height:1.1;letter-spacing:.3px}
+    .logo small{display:block;font-size:.74rem;line-height:1.2;font-style:italic;opacity:.75}
+    .nav{display:flex;align-items:center;gap:4px}
+    .nav a{padding:7px 12px;border-radius:99px;color:#dbe7ff;font-weight:600;font-size:.91rem}
+    .nav a:hover{background:rgba(255,255,255,.12)}
+    .nav a.active{background:#fff;color:var(--n8)}
+    .clock{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:700 1rem Arial,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .clock::before{content:"◷";color:var(--sky);font-size:1.1rem}
+    .hero{position:relative;overflow:hidden;padding:36px 16px 90px;text-align:center;color:#fff;background:radial-gradient(700px 320px at 90% 0%,rgba(56,189,248,.25),transparent 60%),linear-gradient(135deg,#061733,#0c2a63 55%,#1a4a9c)}
+    .hero::after{content:"";position:absolute;inset:0;opacity:.06;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at center,#000 20%,transparent 75%);pointer-events:none}
+    .hero-in{position:relative;z-index:1;max-width:800px;margin:auto}
+    .badge{display:inline-block;padding:4px 14px;border:1px solid #ffffff55;border-radius:99px;background:#ffffff12;font-size:.85rem}
+    .hero h1{margin:9px 0 5px;font-size:clamp(1.55rem,4vw,2.3rem);line-height:1.2}
+    .hero p{margin:0;color:#dbe7ff;font-style:italic}
+    .wrap{position:relative;max-width:1020px;margin:-45px auto 0;padding:0 14px 50px}
+    .intro,.result{max-width:880px;margin:0 auto 18px;padding:24px 28px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px #0617331a}
+    .intro h2,.result h2{margin:0 0 6px;color:var(--n8);font-size:1.5rem}
+    .muted{color:var(--muted)}
+    .intro-meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+    .intro-meta span{padding:4px 11px;border:1px solid var(--line);border-radius:99px;background:#f3f7ff;color:var(--n7);font-size:.9rem}
+    .button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:11px 20px;background:linear-gradient(135deg,var(--n7),var(--blue));color:#fff;font:700 1rem Arial,sans-serif;cursor:pointer;box-shadow:0 5px 14px #16419230}
+    .button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .button:disabled{opacity:.55;cursor:default;transform:none}
+    .paper{max-width:880px;margin:0 auto;padding:clamp(22px,5vw,54px);border:1px solid #d6dbe4;border-radius:3px;background:#fff;box-shadow:0 12px 36px #06173320;font-size:1.04rem}
+    .paper-head{text-align:center;padding-bottom:18px;border-bottom:1px solid #8893a3;margin-bottom:20px}
+    .paper-institution{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center;text-transform:uppercase;font-size:.88rem;line-height:1.4}
+    .paper-institution strong{display:block}
+    .paper-institution span{display:block;margin-top:5px}
+    .paper-head h2{margin:22px 0 4px;font-size:1.35rem;text-transform:uppercase;line-height:1.3}
+    .paper-meta{display:flex;justify-content:center;gap:6px 24px;flex-wrap:wrap;margin-top:8px;font-size:.98rem}
+    .candidate-line{display:grid;grid-template-columns:1.55fr .7fr 1fr;gap:14px;margin-top:17px;text-align:left;font-size:.96rem}
+    .candidate-line span{min-height:27px;border-bottom:1px dotted #6b7280}
+    .instructions{margin:16px 0 0;text-align:left;font-size:.94rem}
+    .paper-part{margin:24px 0 0}
+    .paper-part h3{margin:0 0 12px;padding-bottom:5px;border-bottom:1px solid #8d96a3;font-size:1.05rem;text-transform:uppercase;letter-spacing:.015em}
+    .paper-part h3 span{font-weight:400;text-transform:none}
+    .paper-stimulus{margin:12px 0 14px;white-space:pre-wrap;line-height:1.7}
+    .paper-question{padding:10px 0 14px;scroll-margin-top:80px}
+    .question-title{display:flex;align-items:flex-start;gap:7px}
+    .question-title b{flex:none}
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 18px;margin:6px 0 0 28px}
+    .choice{display:flex;align-items:flex-start;gap:7px;padding:2px 3px;cursor:pointer}
+    .choice input{flex:none;margin:6px 0 0;accent-color:var(--n6)}
+    .choice:hover{background:#f3f7ff}
+    .short-answer,.long-answer{display:block;width:100%;margin:8px 0 0;padding:7px 5px;border:0;border-bottom:1px solid #596579;border-radius:0;background:transparent;color:var(--ink);font:inherit}
+    .short-answer{max-width:610px;min-height:38px}
+    .long-answer{min-height:110px;resize:vertical;border:1px solid #aeb7c5;padding:9px}
+    .word-count{color:var(--muted);text-align:right;font:12px Arial,sans-serif}
+    .paper audio{display:block;width:min(100%,520px);margin:10px 0}
+    .exam-image{display:block;max-width:100%;max-height:520px;object-fit:contain;margin:12px auto}
+    .resource{color:var(--n6);text-decoration:underline}
+    .paper-end{margin-top:24px;padding-top:10px;border-top:1px solid #8d96a3;text-align:center;font-weight:700}
+    .paper-end p{margin:2px}
+    .submit-row{max-width:880px;margin:14px auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    #answered{color:var(--muted);font-size:.92rem}
+    .result{margin:18px auto;padding:22px}
+    .review-item{margin:10px 0;padding:12px;border-left:3px solid #e3a128;background:#f6f8fc}
+    .explanation{margin-top:8px;color:var(--muted);font-size:.93rem}
+    .saved{color:#166534;font-weight:700}
+    [hidden]{display:none!important}
+    @media(max-width:650px){.hd-in{flex-wrap:wrap}.logo{margin-right:auto}.nav{order:3;width:100%;justify-content:center}.nav a{padding:6px 9px;font-size:.84rem}.clock{font-size:.9rem}.hero{padding:28px 14px 74px}.intro{padding:20px}.paper{padding:21px 17px}.paper-institution{grid-template-columns:1fr;gap:10px}.candidate-line{grid-template-columns:1fr}.choices{grid-template-columns:1fr;margin-left:20px}.submit-row{align-items:flex-start;flex-direction:column}}
+    @media print{body{background:#fff;font-size:12pt}.site-header,.hero,.intro,.submit-row,.result{display:none!important}.wrap{max-width:none;margin:0;padding:0}.paper{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;font-size:12pt}.paper-head{break-inside:avoid}.paper-part h3{break-after:avoid}.paper-question{break-inside:avoid;padding:7px 0 10px}.short-answer,.long-answer{background:#fff}.paper audio{display:none}.paper-stimulus{break-inside:avoid}}
   </style>
 </head>
 <body data-mode="school">
-  <header class="toolbar"><div class="toolbar-inner"><a href="school-exams.html">‹ Danh sách đề</a><strong id="topTitle" class="toolbar-title">Đang tải đề</strong><span id="clock" class="clock">--:--</span></div></header>
+  <header class="site-header">
+    <div class="hd-in">
+      <a class="logo" href="index.html" aria-label="EnglishFull – về trang chủ">
+        <svg viewBox="0 0 100 100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 64V28c7-4 20-1 27 3v36c-7-4-20-7-27-3Z"/><path d="M45 31c7-4 20-7 27-3v22M45 67c7-4 20-7 27-3"/><path d="M30 40h15M30 51h10M28 51l17 0 17-18 16-16M64 17h14v14" stroke-width="7"/></g></svg>
+        <span><b>EnglishFull</b><small>Full English is here</small></span>
+      </a>
+      <nav class="nav" aria-label="Điều hướng"><a href="index.html">Trang chủ</a><a class="active" href="school-exams.html">Đề thi</a><a href="exercises.html">Bài tập</a><a href="history.html">Lịch sử</a></nav>
+      <span class="clock" id="clock">--:--</span>
+      <strong id="topTitle" hidden>Đang tải đề</strong>
+    </div>
+  </header>
+  <section class="hero"><div class="hero-in"><span class="badge">Luyện thi THCS &amp; THPT</span><h1>Đề thi tiếng Anh</h1><p>Làm bài theo bố cục đề kiểm tra trên giấy</p></div></section>
   <main class="wrap">
-    <section id="intro" class="intro"><div class="school-line">EnglishFull · Bài thi trực tuyến</div><h1 id="intro-title">Đang tải…</h1><p id="intro-desc" class="muted"></p><div id="intro-meta"></div><p class="muted">Sau khi bắt đầu, đồng hồ chạy liên tục. Có thể xem toàn đề và dùng phiếu câu hỏi để chuyển nhanh. Lượt làm dở được lưu tạm trên trình duyệt.</p><button class="button" id="begin">Bắt đầu làm bài</button></section>
-    <section id="stage" hidden><div class="work-grid"><div><article class="paper"><header class="paper-head"><div class="school-line">TRƯỜNG: .....................................................　　MÔN: TIẾNG ANH</div><h1 id="paper-title"></h1><p>Thời gian làm bài được ghi trên đề, không kể thời gian phát đề.</p><div id="paper-info" class="paper-info"></div><div class="candidate-line"><span>Họ và tên: ................................................</span><span>Lớp: ....................</span><span>Số báo danh: ....................</span></div></header><div id="paper-body"></div></article><div class="submit-row"><button class="button" id="submit">Nộp bài</button></div><section id="result" class="result" hidden></section></div><aside class="side"><div class="answer-card"><h2>Phiếu câu trả lời</h2><div id="answered" class="muted"></div><div id="paper-nav" class="answer-nav"></div></div></aside></div></section>
+    <section id="intro" class="intro">
+      <h2 id="intro-title">Đang tải đề…</h2><p id="intro-desc" class="muted"></p>
+      <div id="intro-meta" class="intro-meta"></div>
+      <p class="muted">Các phần và câu hỏi được xếp liên tục từ trên xuống dưới. Bài làm dở được lưu tạm trên trình duyệt này.</p>
+      <button class="button" id="begin">Bắt đầu làm bài</button>
+    </section>
+    <section id="stage" hidden>
+      <article class="paper">
+        <header class="paper-head">
+          <div class="paper-institution"><div><strong>Trường: ........................................</strong><span>Tổ: ........................................</span></div><div><strong>ĐỀ KIỂM TRA</strong><span>Môn: Tiếng Anh</span></div></div>
+          <h2 id="paper-title"></h2>
+          <div id="paper-info" class="paper-meta"></div>
+          <div class="candidate-line"><span>Họ và tên: .........................................................</span><span>Lớp: ................</span><span>Số báo danh: ....................</span></div>
+          <p class="instructions"><b>Hướng dẫn:</b> Thí sinh làm lần lượt các phần. Với câu trắc nghiệm, chọn một đáp án; với câu trả lời ngắn hoặc viết, ghi câu trả lời vào dòng trống.</p>
+        </header>
+        <div id="paper-body"></div>
+        <footer class="paper-end"><p>— HẾT —</p><p>Thí sinh kiểm tra lại bài trước khi nộp.</p></footer>
+      </article>
+      <div class="submit-row"><span id="answered"></span><button class="button" id="submit">Nộp bài</button></div>
+      <section id="result" class="result" hidden></section>
+    </section>
   </main>
   <script src="exam-runner.js"></script>
 </body>
