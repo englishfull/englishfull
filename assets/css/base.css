@@ -1,0 +1,26 @@
+/* base.css – style nền dùng chung: màu, header, menu, footer.
+   Các trang MỚI hoặc trang được chuyển sang layout.js nên nạp file này
+   thay vì chép lại khối CSS header vào từng trang.
+   (Các trang làm bài đã có sẵn style header trong quiz.css / paper.css.) */
+:root{--n9:#061733;--n8:#0a2350;--n7:#0f3170;--n6:#164192;--blue:#2563eb;--sky:#38bdf8;--bg:#eef2f9;--ink:#0b1b3a;--muted:#5b6b8c;--line:#d9e2f3}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{font-family:'Times New Roman',Times,serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+.site-header{position:sticky;top:0;z-index:60;background:rgba(6,23,51,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1);color:#fff}
+.hd-in{max-width:1120px;margin:0 auto;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+.logo svg{width:44px;height:44px;flex:none}
+.logo b{display:block;font-size:1.2rem;line-height:1.1}
+.logo small{display:block;font-size:.74rem;opacity:.75;line-height:1.2;font-style:italic}
+.nav{display:flex;gap:4px}
+.nav a{color:#dbe7ff;padding:8px 14px;border-radius:99px;font-weight:600;font-size:.93rem;text-decoration:none}
+.nav a:hover{background:rgba(255,255,255,.12)}
+.nav a.on,.nav a.active{background:#fff;color:var(--n8)}
+.clock{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:700 1rem Arial,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:600px){.logo small{display:none}.nav a{padding:7px 10px;font-size:.85rem}}
+
+footer{background:var(--n9);color:#c7d6f5;text-align:center;padding:26px 14px;font-size:.9rem}
+footer a{color:#bfe3ff}

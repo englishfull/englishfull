@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Làm bài – EnglishFull</title>
+<style>
+  body{margin:0;background:#eef2f9;color:#0b1b3a;font:16px/1.6 'Times New Roman',Times,serif}
+  .boot{padding:80px 16px;text-align:center;color:#5b6b8c}
+</style>
+</head>
+<body>
+<!--
+  MỘT trang làm bài cho cả 3 loại: ?id=<mã đề>
+  Backend cho biết đề thuộc loại nào (practice / school / ielts), engine chọn renderer tương ứng
+  và nạp đúng file CSS của loại đó. Đổi số ?v= khi cập nhật JS để trình duyệt tải bản mới.
+-->
+<div id="ef-header"></div>
+<div id="app"><div class="boot">Đang tải đề…</div></div>
+<div id="ef-footer"></div>
+
+<script src="assets/js/core/config.js?v=2026.10.15"></script>
+<script src="assets/js/core/util.js?v=2026.10.15"></script>
+<script src="assets/js/core/api.js?v=2026.10.15"></script>
+<script src="assets/js/core/auth.js?v=2026.10.15"></script>
+<script src="assets/js/core/layout.js?v=2026.10.15"></script>
+<script src="assets/js/engine/engine.js?v=2026.10.15"></script>
+<script src="assets/js/engine/ui.js?v=2026.10.15"></script>
+<script src="assets/js/engine/quiz.js?v=2026.10.15"></script>
+<script src="assets/js/engine/paper.js?v=2026.10.15"></script>
+<script src="assets/js/engine/ielts.js?v=2026.10.15"></script>
+<script>EF.engine.boot();</script>
+</body>
+</html>
