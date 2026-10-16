@@ -127,41 +127,48 @@
   }
 
   function render(d, q) {
-    if (!d || !d.ok) {
-      var m = 'Không tải được chi tiết bài làm.';
-      if (d && d.error === 'auth') m = 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại rồi thử lại.';
-      else if (d && d.error === 'forbidden') m = 'Bạn không có quyền xem bài làm này.';
-      else if (d && d.error === 'stale') m = 'Dữ liệu bài làm này đã thay đổi nên không xem được chi tiết.';
-      else if (d && d.error === 'notfound') m = 'Không tìm thấy bài làm này.';
-      return setBody('<div class="efrv-state">' + esc(m) + '</div>');
-    }
-    if (!q || !q.success) {
-      return setBody('<div class="efrv-state">Không tải được đề gốc: ' + esc((q && q.message) || 'lỗi không rõ') + '</div>');
-    }
-    var wrong = parseWrong(d.wrong), ans = d.ans || {};
-    if (!wrong.length) return setBody('<div class="efrv-state">Lần làm này không có câu sai. 🎉</div>');
+  if (!d || !d.ok) {
+    var m = 'Không tải được chi tiết bài làm.';
+    if (d && d.error === 'auth') m = 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại rồi thử lại.';
+    else if (d && d.error === 'forbidden') m = 'Bạn không có quyền xem bài làm này.';
+    else if (d && d.error === 'stale') m = 'Dữ liệu bài làm này đã thay đổi nên không xem được chi tiết.';
+    else if (d && d.error === 'notfound') m = 'Không tìm thấy bài làm này.';
+    return setBody('<div class="efrv-state">' + esc(m) + '</div>');
+  }
+  if (!q || !q.success) {
+    return setBody('<div class="efrv-state">Không tải được đề gốc: ' + esc((q && q.message) || 'lỗi không rõ') + '</div>');
+  }
 
-    if (ans._exits && ans._exits.count > 0) {
+  var wrong = parseWrong(d.wrong), ans = d.ans || {};
+  var h = ''; // 🔹 Đã khởi tạo biến h ở đây
+
+  // 1. Khung Cảnh báo Giám sát (Hiện ở trên cùng nếu có vi phạm)
+  if (ans._exits && ans._exits.count > 0) {
     h += '<div style="background:#fff1f2; border:1px solid #fecdd3; color:#9f1239; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:0.9rem;">' +
          '<div style="font-weight:bold; font-size:1rem; margin-bottom:4px;">🚨 CẢNH BÁO GIÁM SÁT: Học sinh đã rời khỏi màn hình ' + ans._exits.count + ' lần!</div>' +
          '<div><b>Các thời điểm thoát:</b> ' + ans._exits.logs.join(' | ') + '</div>' +
          '</div>';
   }
 
+  // 2. Trường hợp học sinh không làm sai câu nào
+  if (!wrong.length) {
+    h += '<div class="efrv-state">Lần làm này không có câu sai. 🎉</div>';
+    return setBody(h);
+  }
+
+  // 3. Hiển thị danh sách các câu sai
+  var map = {};
+  (q.data || []).forEach(function (it) { map[String(it.id)] = it; });
+
+  var items = [], gone = 0;
+  wrong.forEach(function (id) { if (map[id]) items.push(map[id]); else gone++; });
+
   h += '<p class="efrv-sum">' + wrong.length + ' câu sai</p>';
   items.forEach(function (it) { h += renderQuestion(it, ans); });
+  if (gone) h += '<div class="efrv-note">' + gone + ' câu sai không còn trong ngân hàng câu hỏi (đề đã được chỉnh sửa).</div>';
 
-    var map = {};
-    (q.data || []).forEach(function (it, i) { it.no = i + 1; map[String(it.id)] = it; });
-    var items = [], gone = 0;
-    wrong.forEach(function (id) { if (map[id]) items.push(map[id]); else gone++; });
-    items.sort(function (a, b) { return a.no - b.no; });
-
-    var h = '<p class="efrv-sum">' + wrong.length + ' câu sai</p>';
-    items.forEach(function (it) { h += renderQuestion(it, ans); });
-    if (gone) h += '<div class="efrv-note">' + gone + ' câu sai không còn trong ngân hàng câu hỏi (đề đã được chỉnh sửa).</div>';
-    setBody(h);
-  }
+  setBody(h);
+}
 
   function open(o) {
     shell(o);
