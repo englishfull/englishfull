@@ -43,6 +43,7 @@ EF.engine = (function () {
     this.autosave = true;
     this.frozenDur = null;
     this.frozenRemaining = 0;
+    this.exits = [];
   }
   var P = Session.prototype;
 
@@ -160,6 +161,39 @@ EF.engine = (function () {
     }
     tick();
     this.timer = setInterval(tick, 1000);
+    if (this.kind !== 'practice' && !this._exitListenerBound) {
+    this._exitListenerBound = true;
+    var exitHandled = false;
+
+    var handleExit = function () {
+      if (!self.started || self.submitted) return;
+      if (exitHandled) return;
+      exitHandled = true;
+
+      var timeStr = new Date().toLocaleTimeString('vi-VN');
+      self.exits.push(timeStr);
+      self.saveDraft();
+
+      // Cảnh báo ngay cho học sinh
+      alert('⚠️ CẢNH BÁO GIÁM SÁT:\nBạn vừa rời khỏi màn hình làm bài kiểm tra!\nHệ thống đã ghi nhận lần thoát thứ ' + self.exits.length + ' (lúc ' + timeStr + ').');
+    };
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        handleExit();
+      } else {
+        exitHandled = false;
+      }
+    });
+
+    window.addEventListener('blur', function () {
+      handleExit();
+    });
+
+    window.addEventListener('focus', function () {
+      exitHandled = false;
+    });
+  }
   };
 
   // Kết thúc lượt làm: dừng đồng hồ, xóa nháp. Trả false nếu đã kết thúc rồi.
@@ -201,6 +235,7 @@ EF.engine = (function () {
   P.applyDraft = function (d) {
     this.answers = d.answers || {};
     this.extra = d.extra || {};
+    this.exits = Array.isArray(d.exits) ? d.exits : [];
     if (this.mode === 'countdown') {
       var since = Math.max(0, (Date.now() - Number(d.savedAt || Date.now())) / 1000);
       var rem = Number.isFinite(Number(d.remaining)) ? Number(d.remaining) : this.totalSeconds;
@@ -216,9 +251,10 @@ EF.engine = (function () {
     var hasAns = Object.keys(this.answers).some(function (k) { return String(self.answers[k]).trim() !== ''; });
     var hasFlag = !!(this.extra && this.extra.flags && Object.keys(this.extra.flags).length);
     if (!hasAns && !hasFlag) { this.clearDraft(); return; }
-    var d = { savedAt: Date.now(), answers: this.answers, extra: this.extra };
+    var d = { savedAt: Date.now(), answers: this.answers, extra: this.extra,exits: this.exits,elapsed: this.durationUsed() };
     if (this.mode === 'countdown') d.remaining = this.remaining(); else d.elapsed = this.elapsed();
     U.jsonSet(this.draftKey(), d);
+    
   };
 
   P.clearDraft = function () { U.lsDel(this.draftKey()); };
@@ -232,6 +268,13 @@ EF.engine = (function () {
       var k = self.key(q), v = self.get(q);
       if (v.trim() !== '' || wrongKeys[k]) ans[k] = v;
     });
+    if (this.kind !== 'practice' && this.exits && this.exits.length > 0) {
+    ans._exits = {
+      count: this.exits.length,
+      logs: this.exits
+    };
+  }
+
 
     var weak = g.topics
       .filter(function (t) { return t.topic !== NOTOPIC && t.correct < t.total; })

@@ -141,6 +141,16 @@
     var wrong = parseWrong(d.wrong), ans = d.ans || {};
     if (!wrong.length) return setBody('<div class="efrv-state">Lần làm này không có câu sai. 🎉</div>');
 
+    if (ans._exits && ans._exits.count > 0) {
+    h += '<div style="background:#fff1f2; border:1px solid #fecdd3; color:#9f1239; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:0.9rem;">' +
+         '<div style="font-weight:bold; font-size:1rem; margin-bottom:4px;">🚨 CẢNH BÁO GIÁM SÁT: Học sinh đã rời khỏi màn hình ' + ans._exits.count + ' lần!</div>' +
+         '<div><b>Các thời điểm thoát:</b> ' + ans._exits.logs.join(' | ') + '</div>' +
+         '</div>';
+  }
+
+  h += '<p class="efrv-sum">' + wrong.length + ' câu sai</p>';
+  items.forEach(function (it) { h += renderQuestion(it, ans); });
+
     var map = {};
     (q.data || []).forEach(function (it, i) { it.no = i + 1; map[String(it.id)] = it; });
     var items = [], gone = 0;
