@@ -17,6 +17,7 @@ EF.layout = (function () {
   var NAV = [
     ['home', 'index.html', 'Trang chủ', null],
     ['exercises', 'exercises.html', 'Bài tập', null],
+    ['theory', 'grammar.html', 'Lý thuyết', null],
     ['school', 'school-exams.html', 'Đề thi', null],
     ['ielts', 'ielts.html', 'IELTS', null],
     ['history', 'history.html', 'Lịch sử', function () { return EF.auth.isLoggedIn(); }],
