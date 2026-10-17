@@ -183,23 +183,31 @@
 
     // 4. Lấy dữ liệu thực tế từ Google Sheet
     function fetchSheetData() {
-      const btn = document.getElementById('btnSync');
-      btn.textContent = '⏳ Đang đọc các cột...';
-      
-      if (typeof EF !== 'undefined' && EF.api) {
-        EF.api.get('getTheoryRoadmap', {}, function(res) {
-          btn.textContent = '🔄 Tải lại từ Google Sheet';
-          if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-            renderTree(res.data);
-          } else {
-            renderTree(DEMO_ROWS);
-          }
-        });
-      } else {
+  const btn = document.getElementById('btnSync');
+  btn.textContent = '⏳ Đang đọc các cột...';
+  
+  if (typeof EF !== 'undefined' && EF.api) {
+    // 🔹 Dùng .then() đúng chuẩn Promise của api.js
+    EF.api.get('getTheoryRoadmap', {})
+      .then(function(res) {
         btn.textContent = '🔄 Tải lại từ Google Sheet';
+        if (res && (res.success || res.ok) && Array.isArray(res.data) && res.data.length > 0) {
+          renderTree(res.data);
+        } else {
+          console.warn('Chưa có dữ liệu từ Sheet hoặc lỗi API, nạp dữ liệu mẫu');
+          renderTree(DEMO_ROWS);
+        }
+      })
+      .catch(function(err) {
+        btn.textContent = '🔄 Tải lại từ Google Sheet';
+        console.error('Lỗi gọi API:', err);
         renderTree(DEMO_ROWS);
-      }
-    }
+      });
+  } else {
+    btn.textContent = '🔄 Tải lại từ Google Sheet';
+    renderTree(DEMO_ROWS);
+  }
+}
 
     // Khởi chạy
     fetchSheetData();
