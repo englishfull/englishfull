@@ -4,57 +4,90 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <title>Sơ Đồ Tư Duy Ngữ Pháp Đa Nhánh – EnglishFull</title>
+  <title>Sơ Đồ Tư Duy Ngữ Pháp – EnglishFull</title>
   <link rel="stylesheet" href="assets/css/base.css">
   <style>
+    /* Hero Banner */
     .hero {
-      color: #fff; text-align: center; padding: 46px 16px 70px;
+      color: #fff;
+      text-align: center;
+      padding: 46px 16px 70px;
       background: radial-gradient(800px 400px at 50% -10%, rgba(56,189,248,.3), transparent 70%),
                   linear-gradient(135deg, #061733 0%, #0c2a63 60%, #1a4a9c 100%);
     }
     .hero h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0 0 8px; font-weight: 800; }
-    .hero p { margin: 0; opacity: .9; }
+    .hero p { margin: 0; opacity: .9; font-size: 1.05rem; }
 
+    /* Khung nội dung chính */
     .wrap { max-width: 1100px; margin: -35px auto 60px; padding: 0 16px; }
 
-    /* Nút thao tác */
-    .bar-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 12px 20px; border-radius: 12px; border: 1px solid #cbd5e1; }
-    .btn-sync { background: #061733; color: #fff; border: 0; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    /* Thanh trạng thái & Nút tải lại */
+    .bar-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      background: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 15px rgba(6,23,51,.04);
+    }
+    .status-text { font-weight: 700; color: #061733; font-size: 1rem; }
+    .btn-sync {
+      background: #061733;
+      color: #fff;
+      border: 0;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: background .15s;
+    }
     .btn-sync:hover { background: #1a4a9c; }
 
-    /* Cấu trúc cây Sơ đồ tư duy (Tree Map) */
+    /* Cấu trúc cây sơ đồ tư duy */
     .tree-root { display: flex; flex-direction: column; gap: 24px; }
     
-    /* Khối level 1 (Gốc - Cột A) */
+    /* Nhánh Cấp 1 (Gốc - Cột A) */
     .node-level-1 {
       background: #fff;
       border: 1.5px solid #061733;
       border-radius: 16px;
-      padding: 20px;
+      padding: 20px 24px;
       box-shadow: 0 8px 24px rgba(6,23,51,.06);
     }
     .title-level-1 {
-      font-size: 1.35rem; font-weight: 800; color: #061733; margin: 0 0 16px;
-      display: flex; align-items: center; gap: 10px;
-      border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #061733;
+      margin: 0 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
     }
 
-    /* Đồ họa đường nhánh (Tree Container) */
+    /* Đồ họa nhóm nhánh */
     .branch-group {
-      display: flex; flex-direction: column; gap: 12px;
-      padding-left: 18px; border-left: 3px solid #38bdf8; margin-left: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-left: 18px;
+      border-left: 3px solid #38bdf8;
+      margin-left: 8px;
     }
 
-    /* Các Nút con đệ quy */
+    /* Nút nhánh đệ quy các cấp */
     .tree-node {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 12px 16px;
       position: relative;
     }
-    
-    /* Phân màu theo cấp độ nhánh */
     .tree-node.leaf-node {
       background: #f0fdf4;
       border-color: #86efac;
@@ -63,72 +96,99 @@
     }
 
     .node-title {
-      font-weight: 700; color: #0f172a; font-size: 1rem;
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer;
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .node-title:hover { color: #2563eb; }
 
     .node-children {
-      margin-top: 10px; display: flex; flex-direction: column; gap: 10px;
-      padding-left: 16px; border-left: 2px dashed #93c5fd;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 16px;
+      border-left: 2px dashed #93c5fd;
     }
 
     .badge-count {
-      font-size: .75rem; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 99px; font-weight: 700;
+      font-size: .75rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 700;
     }
+
+    .state-box {
+      text-align: center;
+      padding: 48px 20px;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      font-size: 1rem;
+    }
+    .state-box.error { color: #dc2626; border-color: #fca5a5; background: #fef2f2; }
   </style>
 </head>
 <body>
 
+  <!-- Header dùng chung -->
   <div id="ef-header"></div>
 
+  <!-- Hero Banner -->
   <section class="hero">
-    <h1>Sơ Đồ Tư Duy Tự Động Phân Nhánh</h1>
-    <p>Hệ thống tự động sinh nhánh theo số lượng cột trên Google Sheet</p>
+    <h1>Sơ Đồ Tư Duy Ngữ Pháp</h1>
+    <p>Lộ trình phân nhánh tự động đồng bộ từ Google Sheet</p>
   </section>
 
+  <!-- Khung nội dung chính -->
   <main class="wrap">
     <div class="bar-tools">
-      <span style="font-weight:700; color:#061733;" id="statusText">Cấu trúc Sơ Đồ Tư Duy</span>
+      <span class="status-text" id="statusText">Cấu trúc Sơ Đồ Tư Duy</span>
       <button class="btn-sync" onclick="fetchSheetData()" id="btnSync">🔄 Tải lại từ Google Sheet</button>
     </div>
 
     <!-- Khung chứa Cây sơ đồ -->
     <div class="tree-root" id="treeContainer">
-      <div style="text-align:center; padding:40px; color:#64748b;">Đang xây dựng cây sơ đồ...</div>
+      <div class="state-box">Đang tải dữ liệu từ Google Sheet...</div>
     </div>
   </main>
 
+  <!-- Footer dùng chung -->
   <div id="ef-footer"></div>
 
+  <!-- 🎯 BẮT BUỘC: Nạp config.js đầu tiên để định nghĩa EF.config trước api.js -->
+  <script src="assets/js/core/config.js"></script>
   <script src="assets/js/core/util.js"></script>
+  <script src="assets/js/core/api.js"></script>
   <script src="assets/js/core/auth.js"></script>
   <script src="assets/js/core/layout.js"></script>
-  <script src="assets/js/core/api.js"></script>
 
   <script>
-    EF.layout.mountHeader(document.getElementById('ef-header'), { active: 'theory' });
-    EF.layout.mountFooter(document.getElementById('ef-footer'));
+    // 1. Khởi tạo Header & Footer
+    if (typeof EF !== 'undefined' && EF.layout) {
+      EF.layout.mountHeader(document.getElementById('ef-header'), { active: 'theory' });
+      EF.layout.mountFooter(document.getElementById('ef-footer'));
+    }
 
-    
-
-    // 1. Thuật toán biến Mảng các đường đi thành Cây (Tree Building Algorithm)
+    // 2. Thuật toán biến mảng đường đi thành Cây (Tree Builder)
     function buildTreeFromPaths(paths) {
       const root = {};
       paths.forEach(path => {
         let current = root;
         path.forEach(step => {
-          if (!current[step]) {
-            current[step] = {};
-          }
+          if (!current[step]) current[step] = {};
           current = current[step];
         });
       });
       return root;
     }
 
-    // 2. Thuật toán Đệ quy để sinh HTML theo số cấp không giới hạn
+    // 3. Thuật toán Đệ quy sinh HTML theo số cấp không giới hạn
     function renderTreeNodes(obj, level = 1) {
       const keys = Object.keys(obj);
       if (keys.length === 0) return '';
@@ -139,11 +199,11 @@
         const isLeaf = childKeys.length === 0;
 
         if (level === 1) {
-          // Cấp 1 (Gốc - Cột A)
+          // Nhánh Cấp 1 (Gốc - Cột A)
           return `
             <div class="node-level-1">
               <h2 class="title-level-1">
-                📌 ${key}
+                <span>📌 ${key}</span>
                 <span class="badge-count">${childKeys.length} nhánh</span>
               </h2>
               <div class="branch-group">
@@ -152,7 +212,7 @@
             </div>
           `;
         } else {
-          // Cấp 2, 3, 4, 5... (Các nhánh con đẻ tiếp)
+          // Nhánh Cấp 2, 3, 4, 5... (Xòe nhánh con)
           return `
             <div class="tree-node ${isLeaf ? 'leaf-node' : ''}">
               <div class="node-title">
@@ -170,46 +230,54 @@
       }).join('');
     }
 
-    // 3. Hiển thị cây ra màn hình
+    // 4. Hiển thị cây ra màn hình
     function renderTree(paths) {
       const container = document.getElementById('treeContainer');
       if (!paths || paths.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px;">Không có dữ liệu trên Google Sheet.</div>';
+        container.innerHTML = '<div class="state-box">Chưa có dữ liệu bài học trên Google Sheet. Hãy thêm dữ liệu vào Tab <b>TheoryRoadmap</b>.</div>';
         return;
       }
       const treeStructure = buildTreeFromPaths(paths);
       container.innerHTML = renderTreeNodes(treeStructure, 1);
     }
 
-    // 4. Lấy dữ liệu thực tế từ Google Sheet
+    // 5. Gọi API lấy dữ liệu thực tế từ Google Sheet
     function fetchSheetData() {
-  const btn = document.getElementById('btnSync');
-  btn.textContent = '⏳ Đang đọc các cột...';
-  
-  if (typeof EF !== 'undefined' && EF.api) {
-    // 🔹 Dùng .then() đúng chuẩn Promise của api.js
-    EF.api.get('getTheoryRoadmap', {})
-      .then(function(res) {
+      const btn = document.getElementById('btnSync');
+      const statusText = document.getElementById('statusText');
+      btn.textContent = '⏳ Đang đọc dữ liệu...';
+      statusText.textContent = 'Đang kết nối Google Sheet...';
+      
+      if (typeof EF !== 'undefined' && EF.api) {
+        EF.api.get('getTheoryRoadmap', {})
+          .then(function(res) {
+            btn.textContent = '🔄 Tải lại từ Google Sheet';
+            
+            if (res && (res.ok || res.success) && Array.isArray(res.data) && res.data.length > 0) {
+              statusText.textContent = 'Đã tải thành công ' + res.data.length + ' dòng dữ liệu!';
+              renderTree(res.data);
+            } else if (res && res.error) {
+              statusText.textContent = 'Lỗi Backend Apps Script: ' + (res.message || res.error);
+              renderTree([]);
+            } else {
+              statusText.textContent = 'Chưa có dữ liệu trên Google Sheet';
+              renderTree([]);
+            }
+          })
+          .catch(function(err) {
+            btn.textContent = '🔄 Tải lại từ Google Sheet';
+            statusText.textContent = 'Lỗi kết nối API';
+            console.error('Lỗi khi gọi API:', err);
+            renderTree([]);
+          });
+      } else {
         btn.textContent = '🔄 Tải lại từ Google Sheet';
-        if (res && (res.success || res.ok) && Array.isArray(res.data) && res.data.length > 0) {
-          renderTree(res.data);
-        } else {
-          console.warn('Chưa có dữ liệu từ Sheet hoặc lỗi API, nạp dữ liệu mẫu');
-          renderTree(DEMO_ROWS);
-        }
-      })
-      .catch(function(err) {
-        btn.textContent = '🔄 Tải lại từ Google Sheet';
-        console.error('Lỗi gọi API:', err);
-        renderTree(DEMO_ROWS);
-      });
-  } else {
-    btn.textContent = '🔄 Tải lại từ Google Sheet';
-    renderTree(DEMO_ROWS);
-  }
-}
+        statusText.textContent = 'Chưa nạp được EF.api';
+        renderTree([]);
+      }
+    }
 
-    // Khởi chạy
+    // Khởi chạy khi trang nạp xong
     fetchSheetData();
   </script>
 </body>
