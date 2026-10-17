@@ -7,161 +7,95 @@
   <title>Sơ Đồ Tư Duy Ngữ Pháp – EnglishFull</title>
   <link rel="stylesheet" href="assets/css/base.css">
   <style>
-    /* Hero Banner */
     .hero {
-      color: #fff;
-      text-align: center;
-      padding: 46px 16px 70px;
+      color: #fff; text-align: center; padding: 46px 16px 70px;
       background: radial-gradient(800px 400px at 50% -10%, rgba(56,189,248,.3), transparent 70%),
                   linear-gradient(135deg, #061733 0%, #0c2a63 60%, #1a4a9c 100%);
     }
     .hero h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0 0 8px; font-weight: 800; }
     .hero p { margin: 0; opacity: .9; font-size: 1.05rem; }
 
-    /* Khung nội dung chính */
     .wrap { max-width: 1100px; margin: -35px auto 60px; padding: 0 16px; }
 
-    /* Thanh trạng thái & Nút tải lại */
     .bar-tools {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      background: #fff;
-      padding: 14px 20px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
+      background: #fff; padding: 14px 20px; border-radius: 14px; border: 1px solid #cbd5e1;
       box-shadow: 0 4px 15px rgba(6,23,51,.04);
     }
     .status-text { font-weight: 700; color: #061733; font-size: 1rem; }
     .btn-sync {
-      background: #061733;
-      color: #fff;
-      border: 0;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: .9rem;
-      transition: background .15s;
+      background: #061733; color: #fff; border: 0; padding: 9px 18px; border-radius: 8px;
+      font-weight: 600; cursor: pointer; font-size: .9rem; transition: background .15s;
     }
     .btn-sync:hover { background: #1a4a9c; }
 
-    /* Cấu trúc cây sơ đồ tư duy */
     .tree-root { display: flex; flex-direction: column; gap: 24px; }
     
-    /* Nhánh Cấp 1 (Gốc - Cột A) */
     .node-level-1 {
-      background: #fff;
-      border: 1.5px solid #061733;
-      border-radius: 16px;
-      padding: 20px 24px;
+      background: #fff; border: 1.5px solid #061733; border-radius: 16px; padding: 20px 24px;
       box-shadow: 0 8px 24px rgba(6,23,51,.06);
     }
     .title-level-1 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #061733;
-      margin: 0 0 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 12px;
+      font-size: 1.35rem; font-weight: 800; color: #061733; margin: 0 0 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;
     }
 
-    /* Đồ họa nhóm nhánh */
     .branch-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding-left: 18px;
-      border-left: 3px solid #38bdf8;
-      margin-left: 8px;
+      display: flex; flex-direction: column; gap: 12px;
+      padding-left: 18px; border-left: 3px solid #38bdf8; margin-left: 8px;
     }
 
-    /* Nút nhánh đệ quy các cấp */
     .tree-node {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 12px 16px;
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px;
       position: relative;
     }
     .tree-node.leaf-node {
-      background: #f0fdf4;
-      border-color: #86efac;
-      color: #166534;
-      font-weight: 600;
+      background: #f0fdf4; border-color: #86efac; color: #166534; font-weight: 600;
     }
 
     .node-title {
-      font-weight: 700;
-      color: #0f172a;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-weight: 700; color: #0f172a; font-size: 1rem;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
     .node-children {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-left: 16px;
-      border-left: 2px dashed #93c5fd;
+      margin-top: 10px; display: flex; flex-direction: column; gap: 10px;
+      padding-left: 16px; border-left: 2px dashed #93c5fd;
     }
 
     .badge-count {
-      font-size: .75rem;
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-weight: 700;
+      font-size: .75rem; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 99px; font-weight: 700;
     }
 
     .state-box {
-      text-align: center;
-      padding: 48px 20px;
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #cbd5e1;
-      color: #64748b;
-      font-size: 1rem;
+      text-align: center; padding: 48px 20px; background: #fff; border-radius: 16px;
+      border: 1px solid #cbd5e1; color: #64748b; font-size: 1rem;
     }
-    .state-box.error { color: #dc2626; border-color: #fca5a5; background: #fef2f2; }
   </style>
 </head>
 <body>
 
-  <!-- Header dùng chung -->
   <div id="ef-header"></div>
 
-  <!-- Hero Banner -->
   <section class="hero">
     <h1>Sơ Đồ Tư Duy Ngữ Pháp</h1>
     <p>Lộ trình phân nhánh tự động đồng bộ từ Google Sheet</p>
   </section>
 
-  <!-- Khung nội dung chính -->
   <main class="wrap">
     <div class="bar-tools">
       <span class="status-text" id="statusText">Cấu trúc Sơ Đồ Tư Duy</span>
       <button class="btn-sync" onclick="fetchSheetData()" id="btnSync">🔄 Tải lại từ Google Sheet</button>
     </div>
 
-    <!-- Khung chứa Cây sơ đồ -->
     <div class="tree-root" id="treeContainer">
       <div class="state-box">Đang tải dữ liệu từ Google Sheet...</div>
     </div>
   </main>
 
-  <!-- Footer dùng chung -->
   <div id="ef-footer"></div>
 
-  <!-- 🎯 BẮT BUỘC: Nạp config.js đầu tiên để định nghĩa EF.config trước api.js -->
   <script src="assets/js/core/config.js"></script>
   <script src="assets/js/core/util.js"></script>
   <script src="assets/js/core/api.js"></script>
@@ -169,13 +103,11 @@
   <script src="assets/js/core/layout.js"></script>
 
   <script>
-    // 1. Khởi tạo Header & Footer
     if (typeof EF !== 'undefined' && EF.layout) {
       EF.layout.mountHeader(document.getElementById('ef-header'), { active: 'theory' });
       EF.layout.mountFooter(document.getElementById('ef-footer'));
     }
 
-    // 2. Thuật toán biến mảng đường đi thành Cây (Tree Builder)
     function buildTreeFromPaths(paths) {
       const root = {};
       paths.forEach(path => {
@@ -188,7 +120,6 @@
       return root;
     }
 
-    // 3. Thuật toán Đệ quy sinh HTML theo số cấp không giới hạn
     function renderTreeNodes(obj, level = 1) {
       const keys = Object.keys(obj);
       if (keys.length === 0) return '';
@@ -199,7 +130,6 @@
         const isLeaf = childKeys.length === 0;
 
         if (level === 1) {
-          // Nhánh Cấp 1 (Gốc - Cột A)
           return `
             <div class="node-level-1">
               <h2 class="title-level-1">
@@ -212,7 +142,6 @@
             </div>
           `;
         } else {
-          // Nhánh Cấp 2, 3, 4, 5... (Xòe nhánh con)
           return `
             <div class="tree-node ${isLeaf ? 'leaf-node' : ''}">
               <div class="node-title">
@@ -230,7 +159,6 @@
       }).join('');
     }
 
-    // 4. Hiển thị cây ra màn hình
     function renderTree(paths) {
       const container = document.getElementById('treeContainer');
       if (!paths || paths.length === 0) {
@@ -241,7 +169,6 @@
       container.innerHTML = renderTreeNodes(treeStructure, 1);
     }
 
-    // 5. Gọi API lấy dữ liệu thực tế từ Google Sheet
     function fetchSheetData() {
       const btn = document.getElementById('btnSync');
       const statusText = document.getElementById('statusText');
@@ -252,7 +179,6 @@
         EF.api.get('getTheoryRoadmap', {})
           .then(function(res) {
             btn.textContent = '🔄 Tải lại từ Google Sheet';
-            
             if (res && (res.ok || res.success) && Array.isArray(res.data) && res.data.length > 0) {
               statusText.textContent = 'Đã tải thành công ' + res.data.length + ' dòng dữ liệu!';
               renderTree(res.data);
@@ -277,7 +203,6 @@
       }
     }
 
-    // Khởi chạy khi trang nạp xong
     fetchSheetData();
   </script>
 </body>
