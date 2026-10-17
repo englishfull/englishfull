@@ -158,7 +158,7 @@
 
   // 3. Hiển thị danh sách các câu sai
   var map = {};
-  (q.data || []).forEach(function (it) { map[String(it.id)] = it; });
+  (q.data || []).forEach(function (it, i) { it.no = i + 1; map[String(it.id)] = it; });
 
   var items = [], gone = 0;
   wrong.forEach(function (id) { if (map[id]) items.push(map[id]); else gone++; });
