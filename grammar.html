@@ -109,6 +109,13 @@
       EF.layout.mountFooter(document.getElementById('ef-footer'));
     }
 
+    // Escape nội dung từ Google Sheet trước khi đưa vào innerHTML
+    const esc = (typeof EF !== 'undefined' && EF.util) ? EF.util.esc : function (v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    };
+
     function buildTreeFromPaths(paths) {
       const root = {};
       paths.forEach(path => {
@@ -134,7 +141,7 @@
           return `
             <div class="node-level-1">
               <h2 class="title-level-1">
-                <span>📌 ${key}</span>
+                <span>📌 ${esc(key)}</span>
                 <span class="badge-count">${childKeys.length} nhánh</span>
               </h2>
               <div class="branch-group">
@@ -146,12 +153,12 @@
           return `
             <div class="tree-node ${isLeaf ? 'leaf-node' : ''}">
               <div class="node-title">
-                <span>${isLeaf ? '💡 ' : '🌿 '}${key}</span>
-                ${!isLeaf ? `<span class="badge-count">\${childKeys.length}</span>` : ''}
+                <span>${isLeaf ? '💡 ' : '🌿 '}${esc(key)}</span>
+                ${!isLeaf ? `<span class="badge-count">${childKeys.length}</span>` : ''}
               </div>
               ${!isLeaf ? `
                 <div class="node-children">
-                  \${renderTreeNodes(children, level + 1)}
+                  ${renderTreeNodes(children, level + 1)}
                 </div>
               ` : ''}
             </div>
@@ -177,7 +184,7 @@
       statusText.textContent = 'Đang kết nối Google Sheet...';
       
       if (typeof EF !== 'undefined' && EF.api) {
-        EF.api.get('getTheoryRoadmap', {})
+        EF.api.get('theory.roadmap', {})
           .then(function(res) {
             btn.textContent = '🔄 Tải lại từ Google Sheet';
             if (res && (res.ok || res.success) && Array.isArray(res.data) && res.data.length > 0) {
