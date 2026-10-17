@@ -111,15 +111,7 @@
     EF.layout.mountHeader(document.getElementById('ef-header'), { active: 'theory' });
     EF.layout.mountFooter(document.getElementById('ef-footer'));
 
-    // Dữ liệu mẫu thử nghiệm đa nhánh
-    const DEMO_ROWS = [
-      ["Khối 6", "Các Thì", "Hiện tại đơn", "Công thức", "S + V(s/es)"],
-      ["Khối 6", "Các Thì", "Hiện tại đơn", "Dấu hiệu", "always, usually, every day"],
-      ["Khối 6", "Các Thì", "Hiện tại tiếp diễn", "Công thức", "S + am/is/are + V-ing"],
-      ["Khối 6", "Từ loại", "Danh từ", "Số nhiều", "Thêm -s hoặc -es"],
-      ["Khối 7", "Cấu trúc câu", "V + V-ing", "Động từ thích", "like / enjoy / love + V-ing"],
-      ["Khối 12", "Luyện thi THPTQG", "Đảo ngữ", "No sooner", "No sooner + had + S + V3 than S + V2"]
-    ];
+    
 
     // 1. Thuật toán biến Mảng các đường đi thành Cây (Tree Building Algorithm)
     function buildTreeFromPaths(paths) {
