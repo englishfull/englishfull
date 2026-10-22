@@ -113,7 +113,8 @@
   .ok{color:var(--ok);font-weight:700}
   .miss{color:var(--bad);text-decoration:line-through}
   .extra{color:var(--bad);font-style:italic;text-decoration:line-through}
-  .hid{color:#9aa9c7;font-weight:700}
+  .hid{color:#9aa9c7;font-weight:700;letter-spacing:1px}
+  .hint b{color:var(--n8)}
 
   /* Nộp bài */
   .who{margin:0 0 10px;font-size:.93rem;color:var(--muted)}
@@ -348,7 +349,7 @@
         '<div class="acts">' +
           '<button class="btn" type="button" data-a="play" data-id="' + s.id + '">▶ Nghe câu này</button>' +
           '<button class="btn" type="button" data-a="check" data-id="' + s.id + '">Kiểm tra</button>' +
-          '<button class="btn ghost" type="button" id="bh' + s.id + '" data-a="hint" data-id="' + s.id + '" disabled>Xem gợi ý</button>' +
+          '<button class="btn ghost" type="button" id="bh' + s.id + '" data-a="hint" data-id="' + s.id + '">Xem gợi ý</button>' +
         '</div>' +
         '<div class="hint" id="h' + s.id + '"></div>' +
         '<div class="fb" id="f' + s.id + '"><div class="sc2" id="fs' + s.id + '"></div><div id="fd' + s.id + '"></div></div>' +
@@ -395,12 +396,57 @@
     }, 50);
   }
 
-  /* ---------- Gợi ý (mở dần, đủ 4 lần mới hiện đáp án) ---------- */
+  /* ---------- Số lần thử (dùng khi chấm câu) ---------- */
   function attempts(id){ return Math.max(tries[id] || 0, listens[id] || 0); }
 
+  /* ---------- Gợi ý: hiện sẵn giới từ, mạo từ, đại từ, liên từ…; ẩn động từ, danh từ, tính từ, trạng từ ----------
+     Không cần nghe hay kiểm tra trước. Bấm đủ 4 lần thì mở toàn bộ đáp án. */
+  var SHOW_AUXILIARIES = false;   // false: trợ động từ (is, are, do, have, will, can…) là động từ nên bị ẩn; true: hiện luôn
+
+  var FUNCTION_WORDS = {}, AUX_WORDS = {};
+  (function(){
+    var add = function(map, list){ list.split(/\s+/).forEach(function(w){ if (w) map[w] = 1; }); };
+    // mạo từ, từ chỉ định, từ chỉ lượng
+    add(FUNCTION_WORDS, 'a an the this that these those some any no every each all both either neither another such enough several many much few');
+    // đại từ
+    add(FUNCTION_WORDS, 'i you he she it we they me him her us them my your his its our their mine yours hers ours theirs ' +
+      'myself yourself himself herself itself ourselves yourselves themselves who whom whose which what ' +
+      'someone somebody something anyone anybody anything everyone everybody everything nobody nothing none');
+    // giới từ
+    add(FUNCTION_WORDS, 'in on at to of for with from by about as into onto over under above below between among through during ' +
+      'before after since until till within without against along across behind beside besides beyond near toward towards upon per via ' +
+      'around inside outside throughout despite except');
+    // liên từ
+    add(AUX_WORDS, 'am is are was were be been being do does did have has had can could will would shall should may might must ' +
+      "don't doesn't didn't isn't aren't wasn't weren't haven't hasn't hadn't can't couldn't won't wouldn't shouldn't mustn't " +
+      "i'm you're he's she's it's we're they're i'll you'll he'll she'll it'll we'll they'll i'd you'd he'd she'd we'd they'd " +
+      "i've you've we've they've that's there's let's what's who's");
+    add(FUNCTION_WORDS, 'and or but because although though if unless while whereas whether nor than');
+  })();
+
+  function isFunctionWord(clean){
+    return !!FUNCTION_WORDS[clean] || (SHOW_AUXILIARIES && !!AUX_WORDS[clean]);
+  }
+  // Che các chữ/số bằng _, giữ nguyên dấu - và ', chừa lại `reveal` chữ cái đầu
+  function maskWord(core, reveal){
+    var k = Math.min(reveal, Math.max(0, core.length - 1));
+    return core.slice(0, k) + core.slice(k).replace(/[A-Za-z0-9]/g, '_');
+  }
+  function hintHtml(text, userTokens, reveal){
+    return text.split(/\s+/).filter(Boolean).map(function(w){
+      var m = w.match(/^([^\w]*)(\w[\w'’\-]*)(.*)$/);
+      if (!m) return esc(w);
+      var lead = m[1], core = m[2], trail = m[3];
+      var clean = core.toLowerCase().replace(/[’‘]/g, "'");
+      if (isFunctionWord(clean)) return esc(lead) + '<b>' + esc(core) + '</b>' + esc(trail);
+      if (userTokens.indexOf(clean.replace(/-/g, '')) !== -1) return esc(lead) + '<span class="ok">' + esc(core) + '</span>' + esc(trail);
+      return esc(lead) + '<span class="hid">' + esc(maskWord(core, reveal)) + '</span>' + esc(trail);
+    }).join(' ');
+  }
+
   function hint(id){
-    tries[id] = (tries[id] || 0) + 1;
-    var n = attempts(id), s = S.filter(function(x){return x.id === id})[0];
+    tries[id] = (tries[id] || 0) + 1;          // chỉ đếm số lần bấm gợi ý, không phụ thuộc số lần nghe
+    var n = tries[id], s = S.filter(function(x){return x.id === id})[0];
     var box = $('h' + id), btn = $('bh' + id);
     box.style.display = 'block';
     if (n >= 4) {
@@ -408,15 +454,10 @@
       btn.textContent = 'Đã mở đáp án'; btn.disabled = true;
       return;
     }
-    var user = tokens($('in' + id).value);
-    var masked = s.text.split(/\s+/).map(function(w){
-      var clean = w.toLowerCase().replace(/[^\w]/g, ''), p = /[^\w]$/.test(w) ? w.slice(-1) : '';
-      if (!clean) return w;
-      if (user.indexOf(clean) !== -1) return w;
-      return clean.charAt(0) + new Array(clean.length).join('_') + p;
-    }).join(' ');
-    box.innerHTML = '<b>Gợi ý (lần ' + n + '/4):</b> ' + esc(masked) +
-      '<small>Cần nghe hoặc xem gợi ý đủ 4 lần để mở toàn bộ đáp án.</small>';
+    var reveal = n - 1;                        // lần 1: chỉ từ nối; lần 2: thêm 1 chữ cái đầu; lần 3: thêm 2 chữ cái đầu
+    box.innerHTML = '<b>Gợi ý (lần ' + n + '/4):</b> ' + hintHtml(s.text, tokens($('in' + id).value), reveal) +
+      '<small>Đã hiện sẵn giới từ, mạo từ, đại từ, liên từ…; động từ, danh từ, tính từ, trạng từ được ẩn' +
+      (reveal ? ' (mở thêm ' + reveal + ' chữ cái đầu)' : '') + '. Bấm gợi ý đủ 4 lần để mở toàn bộ đáp án.</small>';
     btn.textContent = 'Xem gợi ý (' + n + '/4)';
   }
 
