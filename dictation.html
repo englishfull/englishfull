@@ -102,6 +102,7 @@
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
   .tag{background:#e4ecfb;color:var(--n7);font-size:.8rem;font-weight:700;padding:2px 11px;border-radius:99px}
   .tag.sp{background:#fff3d6;color:#7b4a0a}
+  .how{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
   .tr{margin:8px 0;padding:6px 12px;border-left:4px solid var(--sky);background:#f3f7ff;border-radius:0 10px 10px 0;color:var(--muted);font-style:italic;font-size:.95rem}
   .inp{width:100%;margin:10px 0;padding:11px 14px;border:1.5px solid #bcd0f2;border-radius:10px;background:#f6f9ff;font-size:1.05rem}
   .inp:focus{border-color:var(--n6);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
@@ -344,13 +345,15 @@
         '<div class="tags"><span class="tag">Câu ' + s.no + ' · ' + fmt(s.start) + ' – ' + fmt(s.end) + '</span>' +
         (s.speaker ? '<span class="tag sp">' + esc(s.speaker) + '</span>' : '') +
         '<span class="tag">' + n + ' từ</span></div>' +
-        (s.translation ? '<div class="tr">' + esc(s.translation) + '</div>' : '') +
+        (s.translation ? '<div class="tr" id="tr' + s.id + '" hidden>' + esc(s.translation) + '</div>' : '') +
         '<input class="inp" id="in' + s.id + '" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Gõ câu bạn nghe được (' + n + ' từ)..." aria-label="Câu trả lời câu ' + s.no + '">' +
         '<div class="acts">' +
           '<button class="btn" type="button" data-a="play" data-id="' + s.id + '">▶ Nghe câu này</button>' +
           '<button class="btn" type="button" data-a="check" data-id="' + s.id + '">Kiểm tra</button>' +
           '<button class="btn ghost" type="button" id="bh' + s.id + '" data-a="hint" data-id="' + s.id + '">Xem gợi ý</button>' +
+          (s.translation ? '<button class="btn ghost" type="button" id="bt' + s.id + '" data-a="trans" data-id="' + s.id + '">Gợi ý bằng bản dịch</button>' : '') +
         '</div>' +
+        '<p class="how">Ấn gợi ý sau khi nghe.' + (s.translation ? ' Có thể sử dụng gợi ý bằng bản dịch.' : '') + '</p>' +
         '<div class="hint" id="h' + s.id + '"></div>' +
         '<div class="fb" id="f' + s.id + '"><div class="sc2" id="fs' + s.id + '"></div><div id="fd' + s.id + '"></div></div>' +
       '</div>';
@@ -361,11 +364,17 @@
   $('qlist').addEventListener('click', function(e){
     var b = e.target.closest('button[data-a]'); if (!b) return;
     var id = +b.getAttribute('data-id'), a = b.getAttribute('data-a');
-    if (a === 'play') playSentence(id); else if (a === 'check') check(id); else hint(id);
+    if (a === 'play') playSentence(id); else if (a === 'check') check(id); else if (a === 'trans') showTrans(id); else hint(id);
   });
   $('qlist').addEventListener('keyup', function(e){
     if (e.key === 'Enter' && e.target.classList.contains('inp')) check(+e.target.id.slice(2));
   });
+
+  function showTrans(id){
+    var t = $('tr' + id), b = $('bt' + id);
+    if (t) t.hidden = false;
+    if (b) { b.textContent = 'Đã hiện bản dịch'; b.disabled = true; }
+  }
 
   function nav(){
     $('stepInd').textContent = 'Câu ' + (cur + 1) + ' / ' + S.length;
